@@ -1,0 +1,45 @@
+name: auth-service
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: internal/auth-service/Dockerfile
+    ports:
+      - 8082:8082
+    env_file:
+      - docker.env
+
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  migrate:
+    image: ghcr.io/kukymbr/goose-docker:3.26.0
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: postgres://postgres:postgres@db:5432/app_db?sslmode=disable
+    volumes:
+      - ./migrations:/migrations:ro
+    command: ["goose", "-dir", "/migrations", "up"]
+
+volumes:
+  postgres_data:

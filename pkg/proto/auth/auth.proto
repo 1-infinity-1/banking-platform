@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option go_package = "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/auth/v1;authpb";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_BLOCKED = 2;
+  USER_STATUS_LOCKED = 3;
+  USER_STATUS_DISABLED = 4;
+}
+
+enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0;
+  SESSION_STATUS_ACTIVE = 1;
+  SESSION_STATUS_REVOKED = 2;
+  SESSION_STATUS_EXPIRED = 3;
+}
+
+message User {
+  string id = 1; // UUID.
+  string login = 2;
+  string email = 3;
+  string phone = 4;
+  UserStatus status = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message Device {
+  string id = 1; // UUID.
+  string platform = 2;
+  string user_agent = 3;
+}
+
+message Session {
+  string id = 1; // UUID.
+  string user_id = 2;
+  SessionStatus status = 3;
+  Device device = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp expires_at = 7;
+  google.protobuf.Timestamp last_seen_at = 8;
+}
+
+message TokenPair {
+  string access_token = 1;
+  string refresh_token = 2;
+  string token_type = 3; // Usually Bearer.
+  google.protobuf.Timestamp access_token_expires_at = 4;
+  google.protobuf.Timestamp refresh_token_expires_at = 5;
+}
+
+message RequestContext {
+  string trace_id = 1;
+  string request_id = 2;
+  string ip = 3;
+  string user_agent = 4;
+  string device_id = 5;
+  string platform = 6;
+}
+
+message AuthContext {
+  string user_id = 1;
+  string session_id = 2;
+  repeated string role_codes = 3;
+  repeated string permission_codes = 4;
+}
+
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty); // Revoke refresh token and close session.
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+}
+
+service AccessManagementService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+}
+
+message LoginRequest {
+  string login = 1; // User login identifier: email or phone.
+  string password = 2;
+  RequestContext context = 3;
+}
+
+message LoginResponse {
+  User user = 1;
+  Session session = 2;
+  TokenPair tokens = 3;
+  AuthContext auth_context = 4;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+  RequestContext context = 2;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+  RequestContext context = 2;
+}
+
+message RefreshTokenResponse {
+  TokenPair tokens = 1;
+  AuthContext auth_context = 2;
+}
+
+message CreateUserRequest {
+  string login = 1;
+  string email = 2;
+  string phone = 3;
+  string password = 4;
+  repeated string role_codes = 5;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+

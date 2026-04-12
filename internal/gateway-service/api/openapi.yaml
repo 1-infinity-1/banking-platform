@@ -1,0 +1,55 @@
+openapi: 3.0.3
+
+info:
+  title: API
+  version: 1.0.0
+  description: API for ogen generation
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /ping:
+    get:
+      operationId: ping
+      summary: Health check
+      description: ping endpoint
+      responses:
+        "200":
+          description: Pong response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResponse"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    PingResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: pong
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Application-specific error code
+          example: INTERNAL_ERROR
+        message:
+          type: string
+          description: Human-readable error message
+          example: Internal server error
