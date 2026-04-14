@@ -12,10 +12,14 @@ PROTOC_GEN_GO_GRPC_VERSION := v1.6.1
 
 .PHONY: tools proto clean
 
+# Install required protobuf code generation tools
+# Устанавливает необходимые инструменты для генерации protobuf кода
 tools:
 	GOBIN=$(BIN_DIR) go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VERSION)
 	GOBIN=$(BIN_DIR) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VERSION)
 
+# Generate Go code from .proto files
+# Генерирует Go код из .proto файлов
 proto: tools
 	PATH="$(BIN_DIR):$$PATH" $(PROTOC) \
 		-I $(PROTO_DIR) \

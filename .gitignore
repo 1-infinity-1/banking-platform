@@ -32,7 +32,8 @@ go.work.sum
 # .vscode/
 
 /bin
-internal/gateway-service/bin
+/internal/gateway-service/bin
 
-.idea
-.claude
+.idea/
+.claude/
+*.md

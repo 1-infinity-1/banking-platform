@@ -6,7 +6,7 @@ info:
   description: API for ogen generation
 
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8081
 
 paths:
   /ping:
