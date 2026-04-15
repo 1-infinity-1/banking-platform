@@ -7,6 +7,7 @@ import (
 	"net"
 
 	authgrpc "github.com/1-infinity-1/banking-platform/internal/auth-service/internal/transport/grpc"
+	"github.com/1-infinity-1/banking-platform/pkg/grpc/interceptor"
 
 	"google.golang.org/grpc"
 )
@@ -18,7 +19,12 @@ type App struct {
 }
 
 func NewApp(log *slog.Logger, port int) *App {
-	gRPCServer := grpc.NewServer()
+	gRPCServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			interceptor.LoggingUnaryServerInterceptor(log),
+			interceptor.RecoveryUnaryServerInterceptor(log),
+		),
+	)
 
 	authgrpc.NewServerAPI(gRPCServer)
 
