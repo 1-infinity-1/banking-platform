@@ -25,7 +25,10 @@ var runApplicationCmd = &cobra.Command{
 
 		log := logger.NewLogger(cfg.LogLevel)
 
-		application := app.NewApp(log, cfg)
+		application, err := app.NewApp(cmd.Context(), log, cfg)
+		if err != nil {
+			panic(err)
+		}
 
 		if err := application.GRPCSrv.Run(cmd.Context()); err != nil {
 			panic(err)

@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
 func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		startTime := time.Now().UTC()
+
 		fields := make([]any, 0, 8)
 		fields = append(fields,
 			slog.String("protocol", "grpc"),
@@ -23,12 +24,12 @@ func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor
 			fields = append(fields, slog.String("peer", peerAddr.String()))
 		}
 
-		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			if vals := md.Get("x-request-id"); len(vals) > 0 {
-				fields = append(fields, slog.String("request_id", vals[0]))
+		if tc := TraceFromContext(ctx); tc.TraceID != "" || tc.RequestID != "" {
+			if tc.TraceID != "" {
+				fields = append(fields, slog.String("trace_id", tc.TraceID))
 			}
-			if vals := md.Get("x-trace-id"); len(vals) > 0 {
-				fields = append(fields, slog.String("trace_id", vals[0]))
+			if tc.RequestID != "" {
+				fields = append(fields, slog.String("request_id", tc.RequestID))
 			}
 		}
 
@@ -38,7 +39,7 @@ func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor
 
 			fields = append(fields,
 				slog.String("grpc_code", statusCode.Code().String()),
-				slog.Duration("duration", time.Since(time.Now().UTC())),
+				slog.Duration("duration", time.Since(startTime)),
 				slog.String("message", statusCode.Message()),
 			)
 
@@ -47,6 +48,7 @@ func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor
 			return resp, err
 		}
 
+		fields = append(fields, slog.Duration("duration", time.Since(startTime)))
 		log.Info("grpc request handled", fields...)
 
 		return resp, nil

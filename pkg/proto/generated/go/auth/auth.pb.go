@@ -134,8 +134,8 @@ type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // UUID.
 	Login         string                 `protobuf:"bytes,2,opt,name=login,proto3" json:"login,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`
+	Email         *string                `protobuf:"bytes,3,opt,name=email,proto3,oneof" json:"email,omitempty"`
+	Phone         *string                `protobuf:"bytes,4,opt,name=phone,proto3,oneof" json:"phone,omitempty"`
 	Status        UserStatus             `protobuf:"varint,5,opt,name=status,proto3,enum=auth.v1.UserStatus" json:"status,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -188,15 +188,15 @@ func (x *User) GetLogin() string {
 }
 
 func (x *User) GetEmail() string {
-	if x != nil {
-		return x.Email
+	if x != nil && x.Email != nil {
+		return *x.Email
 	}
 	return ""
 }
 
 func (x *User) GetPhone() string {
-	if x != nil {
-		return x.Phone
+	if x != nil && x.Phone != nil {
+		return *x.Phone
 	}
 	return ""
 }
@@ -460,12 +460,10 @@ func (x *TokenPair) GetRefreshTokenExpiresAt() *timestamppb.Timestamp {
 
 type RequestContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TraceId       string                 `protobuf:"bytes,1,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	RequestId     string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Ip            string                 `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
-	UserAgent     string                 `protobuf:"bytes,4,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	DeviceId      string                 `protobuf:"bytes,5,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	Platform      string                 `protobuf:"bytes,6,opt,name=platform,proto3" json:"platform,omitempty"`
+	Ip            string                 `protobuf:"bytes,2,opt,name=ip,proto3" json:"ip,omitempty"`
+	UserAgent     string                 `protobuf:"bytes,3,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
+	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	Platform      string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -498,20 +496,6 @@ func (x *RequestContext) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RequestContext.ProtoReflect.Descriptor instead.
 func (*RequestContext) Descriptor() ([]byte, []int) {
 	return file_auth_auth_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *RequestContext) GetTraceId() string {
-	if x != nil {
-		return x.TraceId
-	}
-	return ""
-}
-
-func (x *RequestContext) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
 }
 
 func (x *RequestContext) GetIp() string {
@@ -897,8 +881,8 @@ func (x *RefreshTokenResponse) GetAuthContext() *AuthContext {
 type CreateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
+	Email         *string                `protobuf:"bytes,2,opt,name=email,proto3,oneof" json:"email,omitempty"`
+	Phone         *string                `protobuf:"bytes,3,opt,name=phone,proto3,oneof" json:"phone,omitempty"`
 	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
 	RoleCodes     []string               `protobuf:"bytes,5,rep,name=role_codes,json=roleCodes,proto3" json:"role_codes,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -943,15 +927,15 @@ func (x *CreateUserRequest) GetLogin() string {
 }
 
 func (x *CreateUserRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
+	if x != nil && x.Email != nil {
+		return *x.Email
 	}
 	return ""
 }
 
 func (x *CreateUserRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
+	if x != nil && x.Phone != nil {
+		return *x.Phone
 	}
 	return ""
 }
@@ -1018,17 +1002,19 @@ var File_auth_auth_proto protoreflect.FileDescriptor
 
 const file_auth_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x0fauth/auth.proto\x12\aauth.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfb\x01\n" +
+	"\x0fauth/auth.proto\x12\aauth.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x99\x02\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05login\x18\x02 \x01(\tR\x05login\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12\x14\n" +
-	"\x05phone\x18\x04 \x01(\tR\x05phone\x12+\n" +
+	"\x05login\x18\x02 \x01(\tR\x05login\x12\x19\n" +
+	"\x05email\x18\x03 \x01(\tH\x00R\x05email\x88\x01\x01\x12\x19\n" +
+	"\x05phone\x18\x04 \x01(\tH\x01R\x05phone\x88\x01\x01\x12+\n" +
 	"\x06status\x18\x05 \x01(\x0e2\x13.auth.v1.UserStatusR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"S\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\b\n" +
+	"\x06_emailB\b\n" +
+	"\x06_phone\"S\n" +
 	"\x06Device\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\bplatform\x18\x02 \x01(\tR\bplatform\x12\x1d\n" +
@@ -1053,16 +1039,13 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tR\ttokenType\x12Q\n" +
 	"\x17access_token_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x14accessTokenExpiresAt\x12S\n" +
-	"\x18refresh_token_expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x15refreshTokenExpiresAt\"\xb2\x01\n" +
-	"\x0eRequestContext\x12\x19\n" +
-	"\btrace_id\x18\x01 \x01(\tR\atraceId\x12\x1d\n" +
+	"\x18refresh_token_expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x15refreshTokenExpiresAt\"x\n" +
+	"\x0eRequestContext\x12\x0e\n" +
+	"\x02ip\x18\x02 \x01(\tR\x02ip\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x02 \x01(\tR\trequestId\x12\x0e\n" +
-	"\x02ip\x18\x03 \x01(\tR\x02ip\x12\x1d\n" +
-	"\n" +
-	"user_agent\x18\x04 \x01(\tR\tuserAgent\x12\x1b\n" +
-	"\tdevice_id\x18\x05 \x01(\tR\bdeviceId\x12\x1a\n" +
-	"\bplatform\x18\x06 \x01(\tR\bplatform\"\x8f\x01\n" +
+	"user_agent\x18\x03 \x01(\tR\tuserAgent\x12\x1b\n" +
+	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x1a\n" +
+	"\bplatform\x18\x05 \x01(\tR\bplatform\"\x8f\x01\n" +
 	"\vAuthContext\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
@@ -1087,14 +1070,16 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\acontext\x18\x02 \x01(\v2\x17.auth.v1.RequestContextR\acontext\"{\n" +
 	"\x14RefreshTokenResponse\x12*\n" +
 	"\x06tokens\x18\x01 \x01(\v2\x12.auth.v1.TokenPairR\x06tokens\x127\n" +
-	"\fauth_context\x18\x02 \x01(\v2\x14.auth.v1.AuthContextR\vauthContext\"\x90\x01\n" +
+	"\fauth_context\x18\x02 \x01(\v2\x14.auth.v1.AuthContextR\vauthContext\"\xae\x01\n" +
 	"\x11CreateUserRequest\x12\x14\n" +
-	"\x05login\x18\x01 \x01(\tR\x05login\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12\x14\n" +
-	"\x05phone\x18\x03 \x01(\tR\x05phone\x12\x1a\n" +
+	"\x05login\x18\x01 \x01(\tR\x05login\x12\x19\n" +
+	"\x05email\x18\x02 \x01(\tH\x00R\x05email\x88\x01\x01\x12\x19\n" +
+	"\x05phone\x18\x03 \x01(\tH\x01R\x05phone\x88\x01\x01\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x1d\n" +
 	"\n" +
-	"role_codes\x18\x05 \x03(\tR\troleCodes\"7\n" +
+	"role_codes\x18\x05 \x03(\tR\troleCodesB\b\n" +
+	"\x06_emailB\b\n" +
+	"\x06_phone\"7\n" +
 	"\x12CreateUserResponse\x12!\n" +
 	"\x04user\x18\x01 \x01(\v2\r.auth.v1.UserR\x04user*\x8c\x01\n" +
 	"\n" +
@@ -1192,6 +1177,8 @@ func file_auth_auth_proto_init() {
 	if File_auth_auth_proto != nil {
 		return
 	}
+	file_auth_auth_proto_msgTypes[0].OneofWrappers = []any{}
+	file_auth_auth_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

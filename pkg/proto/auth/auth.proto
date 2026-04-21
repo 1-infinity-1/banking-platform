@@ -25,8 +25,8 @@ enum SessionStatus {
 message User {
   string id = 1; // UUID.
   string login = 2;
-  string email = 3;
-  string phone = 4;
+  optional string email = 3;
+  optional string phone = 4;
   UserStatus status = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp updated_at = 7;
@@ -58,12 +58,10 @@ message TokenPair {
 }
 
 message RequestContext {
-  string trace_id = 1;
-  string request_id = 2;
-  string ip = 3;
-  string user_agent = 4;
-  string device_id = 5;
-  string platform = 6;
+  string ip = 2;
+  string user_agent = 3;
+  string device_id = 4;
+  string platform = 5;
 }
 
 message AuthContext {
@@ -114,8 +112,8 @@ message RefreshTokenResponse {
 
 message CreateUserRequest {
   string login = 1;
-  string email = 2;
-  string phone = 3;
+  optional string email = 2;
+  optional string phone = 3;
   string password = 4;
   repeated string role_codes = 5;
 }

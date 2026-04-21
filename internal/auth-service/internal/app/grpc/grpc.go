@@ -7,7 +7,9 @@ import (
 	"net"
 
 	authgrpc "github.com/1-infinity-1/banking-platform/internal/auth-service/internal/transport/grpc"
+	internal_interceptor "github.com/1-infinity-1/banking-platform/internal/auth-service/internal/transport/grpc/interceptor"
 	"github.com/1-infinity-1/banking-platform/pkg/grpc/interceptor"
+	"github.com/1-infinity-1/banking-platform/pkg/infrastructure/postgres"
 
 	"google.golang.org/grpc"
 )
@@ -16,22 +18,26 @@ type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
 	port       int
+	conn       *postgres.Conn
 }
 
-func NewApp(log *slog.Logger, port int) *App {
+func NewApp(log *slog.Logger, port int, conn *postgres.Conn, accessManagementSvc authgrpc.AccessManagementService) *App {
 	gRPCServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
+			interceptor.TraceUnaryServerInterceptor(),
 			interceptor.LoggingUnaryServerInterceptor(log),
+			internal_interceptor.UnaryErrorInterceptor(log),
 			interceptor.RecoveryUnaryServerInterceptor(log),
 		),
 	)
 
-	authgrpc.NewServerAPI(gRPCServer)
+	authgrpc.NewServerAPI(gRPCServer, accessManagementSvc)
 
 	return &App{
 		log:        log,
 		gRPCServer: gRPCServer,
 		port:       port,
+		conn:       conn,
 	}
 }
 
@@ -50,6 +56,7 @@ func (a *App) Run(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		a.gRPCServer.GracefulStop()
+		a.conn.Close()
 	}()
 
 	if err := a.gRPCServer.Serve(lis); err != nil {
