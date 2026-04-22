@@ -2,10 +2,12 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/1-infinity-1/banking-platform/pkg/infrastructure/postgres"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/models"
 )
@@ -58,7 +60,12 @@ func (r *Repository) CreateUserTx(ctx context.Context, tx pgx.Tx, user models.Cr
 		&userDTO.createdAt,
 		&userDTO.updatedAt,
 	)
+
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return nil, models.NewInvalidParamsError("unique", "this data is already in use")
+		}
 		return nil, fmt.Errorf("r.db.Exec %w", err)
 	}
 

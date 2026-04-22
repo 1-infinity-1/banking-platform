@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
-    public_id UUID NOT NULL UNIQUE,
+    public_id UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     login TEXT NOT NULL UNIQUE,
     email TEXT UNIQUE,
     phone TEXT UNIQUE,
@@ -40,7 +40,7 @@ COMMENT ON COLUMN users.locked_until IS
 
 CREATE TABLE devices (
     id BIGSERIAL PRIMARY KEY,
-    public_id UUID NOT NULL UNIQUE,
+    public_id UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     platform TEXT NOT NULL,
     user_agent TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -58,7 +58,7 @@ COMMENT ON COLUMN devices.user_agent IS
 
 CREATE TABLE sessions (
     id BIGSERIAL PRIMARY KEY,
-    public_id UUID NOT NULL UNIQUE,
+    public_id UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     device_id BIGINT NOT NULL REFERENCES devices(id) ON DELETE RESTRICT,
     status TEXT NOT NULL,
@@ -97,7 +97,7 @@ COMMENT ON COLUMN refresh_tokens.revoked_at IS
 
 CREATE TABLE roles (
     id BIGSERIAL PRIMARY KEY,
-    public_id UUID NOT NULL UNIQUE,
+    public_id UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     code TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -112,7 +112,7 @@ COMMENT ON COLUMN roles.name IS
 
 CREATE TABLE permissions (
     id BIGSERIAL PRIMARY KEY,
-    public_id UUID NOT NULL UNIQUE,
+    public_id UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     code TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

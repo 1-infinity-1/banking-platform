@@ -121,7 +121,7 @@ internal/auth-service/
 │       └── grpc/
 │           └── server.go   # gRPC handler implementations
 ├── migrations/
-│   └── 20260330175820_init.sql
+│   └── 20260330175820_init_schema.sql
 ├── Dockerfile
 ├── Makefile
 ├── docker-compose.yaml

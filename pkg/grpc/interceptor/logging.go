@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
@@ -19,10 +18,6 @@ func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor
 			slog.String("protocol", "grpc"),
 			slog.String("method", info.FullMethod),
 		)
-
-		if peerAddr, ok := peer.FromContext(ctx); ok {
-			fields = append(fields, slog.String("peer", peerAddr.String()))
-		}
 
 		if tc := TraceFromContext(ctx); tc.TraceID != "" || tc.RequestID != "" {
 			if tc.TraceID != "" {
