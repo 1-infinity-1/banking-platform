@@ -26,12 +26,15 @@ func UnaryErrorInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
 		var (
 			notFoundErr   *models.NotFoundError
 			invalidParams *models.InvalidParamsError
+			businessErr   *models.BusinessError
 		)
 		switch {
 		case errors.As(err, &notFoundErr):
 			return res, status.Error(codes.NotFound, notFoundErr.Error())
 		case errors.As(err, &invalidParams):
 			return res, status.Error(codes.InvalidArgument, invalidParams.Error())
+		case errors.As(err, &businessErr):
+			return res, status.Error(codes.FailedPrecondition, businessErr.Error())
 		default:
 			tc := interceptor.TraceFromContext(ctx)
 			log.Error("unexpected internal error",

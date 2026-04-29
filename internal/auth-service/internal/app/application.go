@@ -7,8 +7,13 @@ import (
 
 	grpcapp "github.com/1-infinity-1/banking-platform/internal/auth-service/internal/app/grpc"
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/config"
+	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/jwt"
+	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/services/auth"
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/services/management"
+	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/storage/device"
+	refreshtoken "github.com/1-infinity-1/banking-platform/internal/auth-service/internal/storage/refresh_token"
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/storage/role"
+	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/storage/session"
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/storage/tx"
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/storage/user"
 	"github.com/1-infinity-1/banking-platform/pkg/infrastructure/postgres"
@@ -33,10 +38,19 @@ func NewApp(ctx context.Context, log *slog.Logger, cfg config.Config) (*App, err
 	txManager := tx.NewTxManager(conn)
 	roleRepo := role.NewRepository(conn)
 	userRepo := user.NewRepository(conn)
+	sessionRepo := session.NewRepository(conn)
+	deviceRepo := device.NewRepository(conn)
+	refreshTokenRepo := refreshtoken.NewRepository(conn)
+
+	tokenManager := jwt.NewTokenManager(cfg.SecretKeyForToken)
 
 	accessManagementSvc := management.NewAccessManagementService(txManager, userRepo, roleRepo)
+	authSvc := auth.NewAuthService(txManager, userRepo, deviceRepo, sessionRepo, tokenManager, refreshTokenRepo, auth.Config{
+		AccessTokenTTL:  cfg.AccessTokenTTL,
+		RefreshTokenTTL: cfg.RefreshTokenTTL,
+	})
 
-	grpcApp := grpcapp.NewApp(log, cfg.GRPCconfig.Port, conn, accessManagementSvc)
+	grpcApp := grpcapp.NewApp(log, cfg.GRPCconfig.Port, conn, accessManagementSvc, authSvc)
 
 	return &App{
 		GRPCSrv: grpcApp,

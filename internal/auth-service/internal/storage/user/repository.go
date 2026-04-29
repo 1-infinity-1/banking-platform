@@ -20,7 +20,7 @@ func NewRepository(db *postgres.Conn) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) CreateUserTx(ctx context.Context, tx pgx.Tx, user models.CreateUser, status models.Status) (*models.User, error) {
+func (r *Repository) CreateUserTx(ctx context.Context, tx pgx.Tx, user models.CreateUser, passwordHashed string, status models.UserStatus) (*models.User, error) {
 	query := `
 		INSERT INTO users (
 			login,
@@ -48,7 +48,7 @@ func (r *Repository) CreateUserTx(ctx context.Context, tx pgx.Tx, user models.Cr
 		user.Login,
 		user.Email,
 		user.Phone,
-		user.Password,
+		passwordHashed,
 		status,
 	).Scan(
 		&userDTO.id,
@@ -75,4 +75,51 @@ func (r *Repository) CreateUserTx(ctx context.Context, tx pgx.Tx, user models.Cr
 	}
 
 	return userModel, nil
+}
+
+func (r *Repository) GetByLogin(ctx context.Context, login string) (*models.User, error) {
+	query := `
+		SELECT
+		    u.id,
+			u.public_id,
+			u.login,
+			u.email,
+			u.phone,
+			u.password_hash,
+			u.status,
+			array_agg(DISTINCT r.code) AS roles,
+			array_agg(DISTINCT p.code) AS permissions,
+			u.created_at,
+		    u.updated_at
+		FROM users u
+		JOIN user_roles ur ON ur.user_id = u.id
+		JOIN roles r ON r.id = ur.role_id
+		JOIN role_permissions rp ON rp.role_id = r.id
+		JOIN permissions p ON p.id = rp.permission_id
+		WHERE u.login = $1
+		GROUP BY u.id
+	`
+
+	var dto UserDTO
+	err := r.db.QueryRow(ctx, query, login).Scan(
+		&dto.id,
+		&dto.publicID,
+		&dto.login,
+		&dto.email,
+		&dto.phone,
+		&dto.passwordHash,
+		&dto.status,
+		&dto.roles,
+		&dto.permissions,
+		&dto.createdAt,
+		&dto.updatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, models.NewNotFoundError("user not found")
+		}
+		return nil, fmt.Errorf("r.db.QueryRow: %w", err)
+	}
+
+	return dto.ToDomain()
 }

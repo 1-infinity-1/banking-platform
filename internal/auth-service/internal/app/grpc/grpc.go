@@ -21,7 +21,7 @@ type App struct {
 	conn       *postgres.Conn
 }
 
-func NewApp(log *slog.Logger, port int, conn *postgres.Conn, accessManagementSvc authgrpc.AccessManagementService) *App {
+func NewApp(log *slog.Logger, port int, conn *postgres.Conn, accessManagementSvc authgrpc.AccessManagementService, authSvc authgrpc.AuthService) *App {
 	gRPCServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.TraceUnaryServerInterceptor(),
@@ -31,7 +31,7 @@ func NewApp(log *slog.Logger, port int, conn *postgres.Conn, accessManagementSvc
 		),
 	)
 
-	authgrpc.NewServerAPI(gRPCServer, accessManagementSvc)
+	authgrpc.NewServerAPI(gRPCServer, accessManagementSvc, authSvc)
 
 	return &App{
 		log:        log,

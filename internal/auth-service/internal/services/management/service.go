@@ -20,7 +20,7 @@ type roleRepo interface {
 }
 
 type userRepo interface {
-	CreateUserTx(ctx context.Context, tx pgx.Tx, user models.CreateUser, status models.Status) (*models.User, error)
+	CreateUserTx(ctx context.Context, tx pgx.Tx, user models.CreateUser, passwordHashed string, status models.UserStatus) (*models.User, error)
 }
 
 type AccessManagementService struct {
@@ -37,19 +37,19 @@ func NewAccessManagementService(txManager txManager, userRepo userRepo, roleRepo
 	}
 }
 
-func (u *AccessManagementService) CreateUser(ctx context.Context, userCreate models.CreateUser) (*models.User, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(userCreate.Password), bcrypt.DefaultCost)
+func (u *AccessManagementService) CreateUser(ctx context.Context, userCreate models.CreateUser, password string) (*models.User, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("bcrypt.GenerateFromPassword: %w", err)
 	}
 
-	userCreate.Password = string(hashed)
+	passwordHashed := string(hashed)
 
-	statusUser := models.StatusActive
+	statusUser := models.UserStatusActive
 
 	var user *models.User
 	err = u.txManager.BeginFunc(ctx, func(tx pgx.Tx) error {
-		user, err = u.userRepo.CreateUserTx(ctx, tx, userCreate, statusUser)
+		user, err = u.userRepo.CreateUserTx(ctx, tx, userCreate, passwordHashed, statusUser)
 		if err != nil {
 			return fmt.Errorf("u.repo.Create: %w", err)
 		}
@@ -70,7 +70,7 @@ func (u *AccessManagementService) CreateUser(ctx context.Context, userCreate mod
 			roleCodes = append(roleCodes, role.Code)
 		}
 
-		user.Role = roleCodes
+		user.Roles = roleCodes
 
 		err = u.roleRepo.CreateUserRolesTx(ctx, tx, user.ID, roleIDs)
 		if err != nil {

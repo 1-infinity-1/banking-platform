@@ -58,9 +58,7 @@ message TokenPair {
 }
 
 message RequestContext {
-  string ip = 2;
   string user_agent = 3;
-  string device_id = 4;
   string platform = 5;
 }
 

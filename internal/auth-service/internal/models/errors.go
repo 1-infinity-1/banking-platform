@@ -33,3 +33,15 @@ func NewInvalidParamsError(field, reason string) *InvalidParamsError {
 func (e *InvalidParamsError) Error() string {
 	return fmt.Sprintf("Field `%s` invalid: %s", e.field, e.reason)
 }
+
+type BusinessError struct {
+	message string
+}
+
+func NewBusinessError(message string) *BusinessError {
+	return &BusinessError{message: message}
+}
+
+func (e *BusinessError) Error() string {
+	return fmt.Sprintf("business error: %s", e.message)
+}

@@ -460,9 +460,7 @@ func (x *TokenPair) GetRefreshTokenExpiresAt() *timestamppb.Timestamp {
 
 type RequestContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ip            string                 `protobuf:"bytes,2,opt,name=ip,proto3" json:"ip,omitempty"`
 	UserAgent     string                 `protobuf:"bytes,3,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	Platform      string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -498,23 +496,9 @@ func (*RequestContext) Descriptor() ([]byte, []int) {
 	return file_auth_auth_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *RequestContext) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
 func (x *RequestContext) GetUserAgent() string {
 	if x != nil {
 		return x.UserAgent
-	}
-	return ""
-}
-
-func (x *RequestContext) GetDeviceId() string {
-	if x != nil {
-		return x.DeviceId
 	}
 	return ""
 }
@@ -1039,12 +1023,10 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tR\ttokenType\x12Q\n" +
 	"\x17access_token_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x14accessTokenExpiresAt\x12S\n" +
-	"\x18refresh_token_expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x15refreshTokenExpiresAt\"x\n" +
-	"\x0eRequestContext\x12\x0e\n" +
-	"\x02ip\x18\x02 \x01(\tR\x02ip\x12\x1d\n" +
+	"\x18refresh_token_expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x15refreshTokenExpiresAt\"K\n" +
+	"\x0eRequestContext\x12\x1d\n" +
 	"\n" +
-	"user_agent\x18\x03 \x01(\tR\tuserAgent\x12\x1b\n" +
-	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x1a\n" +
+	"user_agent\x18\x03 \x01(\tR\tuserAgent\x12\x1a\n" +
 	"\bplatform\x18\x05 \x01(\tR\bplatform\"\x8f\x01\n" +
 	"\vAuthContext\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +

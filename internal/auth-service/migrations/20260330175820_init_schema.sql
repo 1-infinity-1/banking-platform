@@ -63,7 +63,7 @@ CREATE TABLE sessions (
     device_id BIGINT NOT NULL REFERENCES devices(id) ON DELETE RESTRICT,
     status TEXT NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL,
-    last_seen_at TIMESTAMPTZ NULL,
+    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
