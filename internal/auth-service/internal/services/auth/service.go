@@ -24,7 +24,13 @@ type deviceRepo interface {
 }
 
 type sessionRepo interface {
-	CreateSessionTx(ctx context.Context, tx pgx.Tx, userID, deviceID int64, status models.SessionStatus, expireTime time.Time) (*models.Session, error)
+	CreateSessionTx(
+		ctx context.Context,
+		tx pgx.Tx,
+		userID, deviceID int64,
+		status models.SessionStatus,
+		expireTime time.Time,
+	) (*models.Session, error)
 }
 
 type refreshTokenRepo interface {
@@ -41,7 +47,7 @@ type Config struct {
 	RefreshTokenTTL time.Duration
 }
 
-type AuthService struct {
+type Service struct {
 	txManager        txManager
 	userRepo         userRepo
 	deviceRepo       deviceRepo
@@ -51,8 +57,16 @@ type AuthService struct {
 	cfg              Config
 }
 
-func NewAuthService(txManager txManager, userRepo userRepo, deviceRepo deviceRepo, sessionRepo sessionRepo, tokenManager tokenManager, refreshTokenRepo refreshTokenRepo, cfg Config) *AuthService {
-	return &AuthService{
+func NewService(
+	txManager txManager,
+	userRepo userRepo,
+	deviceRepo deviceRepo,
+	sessionRepo sessionRepo,
+	tokenManager tokenManager,
+	refreshTokenRepo refreshTokenRepo,
+	cfg Config,
+) *Service {
+	return &Service{
 		txManager:        txManager,
 		userRepo:         userRepo,
 		deviceRepo:       deviceRepo,
@@ -63,7 +77,7 @@ func NewAuthService(txManager txManager, userRepo userRepo, deviceRepo deviceRep
 	}
 }
 
-func (s *AuthService) Login(ctx context.Context, credentials models.LoginCredentials) (*models.LoginResult, error) {
+func (s *Service) Login(ctx context.Context, credentials models.LoginCredentials) (*models.LoginResult, error) {
 	user, err := s.userRepo.GetByLogin(ctx, credentials.Login)
 	if err != nil {
 		return nil, fmt.Errorf("s.userRepo.GetByLogin: %w", err)
@@ -80,24 +94,31 @@ func (s *AuthService) Login(ctx context.Context, credentials models.LoginCredent
 
 	var loginResult *models.LoginResult
 	err = s.txManager.BeginFunc(ctx, func(tx pgx.Tx) error {
-		device, err := s.deviceRepo.CreateDeviceTx(ctx, tx, credentials.Context.UserAgent, credentials.Context.Platform)
+		var (
+			device       *models.Device
+			session      *models.Session
+			accessToken  string
+			refreshToken string
+		)
+
+		device, err = s.deviceRepo.CreateDeviceTx(ctx, tx, credentials.Context.UserAgent, credentials.Context.Platform)
 		if err != nil {
 			return fmt.Errorf("s.deviceRepo.CreateDeviceTx: %w", err)
 		}
 
 		expireAt := time.Now().Add(s.cfg.RefreshTokenTTL)
-		session, err := s.sessionRepo.CreateSessionTx(ctx, tx, user.ID, device.ID, models.SessionStatusActive, expireAt)
+		session, err = s.sessionRepo.CreateSessionTx(ctx, tx, user.ID, device.ID, models.SessionStatusActive, expireAt)
 		if err != nil {
 			return fmt.Errorf("s.sessionRepo.CreateSessionTx: %w", err)
 		}
 
 		expireAtAccessToken := time.Now().Add(s.cfg.AccessTokenTTL)
-		accessToken, err := s.tokenManager.GenerateAccessToken(*user, *session, expireAtAccessToken)
+		accessToken, err = s.tokenManager.GenerateAccessToken(*user, *session, expireAtAccessToken)
 		if err != nil {
 			return fmt.Errorf("s.tokenManager.GenerateAccessToken: %w", err)
 		}
 
-		refreshToken, err := s.tokenManager.GenerateRefreshToken()
+		refreshToken, err = s.tokenManager.GenerateRefreshToken()
 		if err != nil {
 			return fmt.Errorf("s.tokenManager.GenerateRefreshToken: %w", err)
 		}
@@ -109,7 +130,15 @@ func (s *AuthService) Login(ctx context.Context, credentials models.LoginCredent
 			return fmt.Errorf("s.refreshTokenRepo.CreateTokenTx: %w", err)
 		}
 
-		loginResult = mappingToLoginResult(user, session, device, accessToken, refreshToken, expireAtAccessToken, expireAt)
+		loginResult = mappingToLoginResult(
+			user,
+			session,
+			device,
+			accessToken,
+			refreshToken,
+			expireAtAccessToken,
+			expireAt,
+		)
 
 		return nil
 	})

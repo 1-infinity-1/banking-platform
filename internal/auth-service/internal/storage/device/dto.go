@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type DeviceDTO struct {
+type deviceDTO struct {
 	id        int64
 	publicID  uuid.UUID
 	userAgent string
@@ -16,7 +16,7 @@ type DeviceDTO struct {
 	updatedAt time.Time
 }
 
-func (d *DeviceDTO) ToDomain() *models.Device {
+func (d *deviceDTO) ToDomain() *models.Device {
 	return &models.Device{
 		ID:        d.id,
 		PublicID:  d.publicID,

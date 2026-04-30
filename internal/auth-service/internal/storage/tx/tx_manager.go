@@ -8,15 +8,15 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type TxManager struct {
+type Manager struct {
 	db *postgres.Conn
 }
 
-func NewTxManager(db *postgres.Conn) *TxManager {
-	return &TxManager{db: db}
+func NewManager(db *postgres.Conn) *Manager {
+	return &Manager{db: db}
 }
 
-func (t *TxManager) BeginFunc(ctx context.Context, fn func(tx pgx.Tx) error) error {
+func (t *Manager) BeginFunc(ctx context.Context, fn func(tx pgx.Tx) error) error {
 	tx, err := t.db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("t.db.Begin: %w", err)

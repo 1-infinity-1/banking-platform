@@ -17,7 +17,13 @@ func NewRepository(db *postgres.Conn) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) CreateTokenTx(ctx context.Context, tx pgx.Tx, sessionID int64, tokenHash string, expireTime time.Time) error {
+func (r *Repository) CreateTokenTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	sessionID int64,
+	tokenHash string,
+	expireTime time.Time,
+) error {
 	query := `
 		INSERT INTO refresh_tokens (session_id, token_hash, expires_at)
 		VALUES ($1, $2, $3)
