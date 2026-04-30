@@ -39,7 +39,7 @@ func (u *CreateUserDTO) ToDomain() (*models.User, error) {
 	return user, nil
 }
 
-type UserDTO struct {
+type userDTO struct {
 	id           int64
 	publicID     uuid.UUID
 	login        string
@@ -53,7 +53,7 @@ type UserDTO struct {
 	updatedAt    time.Time
 }
 
-func (u *UserDTO) ToDomain() (*models.User, error) {
+func (u *userDTO) ToDomain() (*models.User, error) {
 	user := &models.User{
 		ID:           u.id,
 		PublicID:     u.publicID,
