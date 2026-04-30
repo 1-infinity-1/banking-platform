@@ -10,7 +10,7 @@ const (
 	pong = "pong"
 )
 
-func (g *GatewayHandler) Ping(ctx context.Context) (*api.PingResponse, error) {
+func (g *GatewayHandler) Ping(_ context.Context) (*api.PingResponse, error) {
 	return &api.PingResponse{
 		Message: pong,
 	}, nil

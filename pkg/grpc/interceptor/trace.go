@@ -15,7 +15,7 @@ type TraceContext struct {
 }
 
 func TraceUnaryServerInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		tc := TraceContext{}
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
