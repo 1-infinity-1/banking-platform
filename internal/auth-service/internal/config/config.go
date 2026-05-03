@@ -18,7 +18,7 @@ type Config struct {
 	} `envconfig:"GRPC"`
 
 	AccessTokenTTL  time.Duration `envconfig:"AUTH_ACCESS_TOKEN_TTL" default:"5m"`
-	RefreshTokenTTL time.Duration `envconfig:"REFRESH_TOKEN_TTL" default:"1h"`
+	RefreshTokenTTL time.Duration `envconfig:"REFRESH_TOKEN_TTL"     default:"1h"`
 
 	SecretKeyForToken string `envconfig:"SECRET_KEY_FOR_TOKEN" default:"secret"`
 }

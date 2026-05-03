@@ -13,9 +13,10 @@ func toProtoSessionStatus(s models.SessionStatus) authpb.SessionStatus {
 		return authpb.SessionStatus_SESSION_STATUS_REVOKED
 	case models.SessionStatusExpired:
 		return authpb.SessionStatus_SESSION_STATUS_EXPIRED
-	default:
+	case models.SessionStatusUnspecified:
 		return authpb.SessionStatus_SESSION_STATUS_UNSPECIFIED
 	}
+	return authpb.SessionStatus_SESSION_STATUS_UNSPECIFIED
 }
 
 func toProtoUserStatus(s models.UserStatus) authpb.UserStatus {
@@ -28,7 +29,8 @@ func toProtoUserStatus(s models.UserStatus) authpb.UserStatus {
 		return authpb.UserStatus_USER_STATUS_DISABLED
 	case models.UserStatusLocked:
 		return authpb.UserStatus_USER_STATUS_LOCKED
-	default:
+	case models.UserStatusUnspecified:
 		return authpb.UserStatus_USER_STATUS_UNSPECIFIED
 	}
+	return authpb.UserStatus_USER_STATUS_UNSPECIFIED
 }

@@ -9,11 +9,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const initialFieldsCapacity = 8
+
 func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		startTime := time.Now().UTC()
 
-		fields := make([]any, 0, 8)
+		fields := make([]any, 0, initialFieldsCapacity)
 		fields = append(fields,
 			slog.String("protocol", "grpc"),
 			slog.String("method", info.FullMethod),

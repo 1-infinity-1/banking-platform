@@ -35,7 +35,7 @@ func NewApp(ctx context.Context, log *slog.Logger, cfg config.Config) (*App, err
 		return nil, fmt.Errorf("postgres.NewDB: %w", err)
 	}
 
-	txManager := tx.NewTxManager(conn)
+	txManager := tx.NewManager(conn)
 	roleRepo := role.NewRepository(conn)
 	userRepo := user.NewRepository(conn)
 	sessionRepo := session.NewRepository(conn)
@@ -45,10 +45,18 @@ func NewApp(ctx context.Context, log *slog.Logger, cfg config.Config) (*App, err
 	tokenManager := jwt.NewTokenManager(cfg.SecretKeyForToken)
 
 	accessManagementSvc := management.NewAccessManagementService(txManager, userRepo, roleRepo)
-	authSvc := auth.NewAuthService(txManager, userRepo, deviceRepo, sessionRepo, tokenManager, refreshTokenRepo, auth.Config{
-		AccessTokenTTL:  cfg.AccessTokenTTL,
-		RefreshTokenTTL: cfg.RefreshTokenTTL,
-	})
+	authSvc := auth.NewService(
+		txManager,
+		userRepo,
+		deviceRepo,
+		sessionRepo,
+		tokenManager,
+		refreshTokenRepo,
+		auth.Config{
+			AccessTokenTTL:  cfg.AccessTokenTTL,
+			RefreshTokenTTL: cfg.RefreshTokenTTL,
+		},
+	)
 
 	grpcApp := grpcapp.NewApp(log, cfg.GRPCconfig.Port, conn, accessManagementSvc, authSvc)
 

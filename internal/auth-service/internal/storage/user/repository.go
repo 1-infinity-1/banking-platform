@@ -20,7 +20,13 @@ func NewRepository(db *postgres.Conn) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) CreateUserTx(ctx context.Context, tx pgx.Tx, user models.CreateUser, passwordHashed string, status models.UserStatus) (*models.User, error) {
+func (r *Repository) CreateUserTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	user models.CreateUser,
+	passwordHashed string,
+	status models.UserStatus,
+) (*models.User, error) {
 	query := `
 		INSERT INTO users (
 			login,
@@ -100,7 +106,7 @@ func (r *Repository) GetByLogin(ctx context.Context, login string) (*models.User
 		GROUP BY u.id
 	`
 
-	var dto UserDTO
+	var dto userDTO
 	err := r.db.QueryRow(ctx, query, login).Scan(
 		&dto.id,
 		&dto.publicID,

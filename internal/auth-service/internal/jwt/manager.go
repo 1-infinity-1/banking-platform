@@ -20,7 +20,11 @@ func NewTokenManager(secretKey string) *TokenManager {
 	}
 }
 
-func (m *TokenManager) GenerateAccessToken(user models.User, session models.Session, expireAt time.Time) (string, error) {
+func (m *TokenManager) GenerateAccessToken(
+	user models.User,
+	session models.Session,
+	expireAt time.Time,
+) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":     user.PublicID,
 		"session_id":  session.PublicID.String(),
@@ -33,8 +37,10 @@ func (m *TokenManager) GenerateAccessToken(user models.User, session models.Sess
 	return token.SignedString([]byte(m.secretKey))
 }
 
+const refreshTokenByteLen = 32
+
 func (m *TokenManager) GenerateRefreshToken() (string, error) {
-	bytes := make([]byte, 32)
+	bytes := make([]byte, refreshTokenByteLen)
 
 	if _, err := rand.Read(bytes); err != nil {
 		return "", fmt.Errorf("rand.Read: %w", err)

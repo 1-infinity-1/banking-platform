@@ -30,7 +30,8 @@ var runApplicationCmd = &cobra.Command{
 			panic(err)
 		}
 
-		if err := application.GRPCSrv.Run(cmd.Context()); err != nil {
+		err = application.GRPCSrv.Run(cmd.Context())
+		if err != nil {
 			panic(err)
 		}
 	},

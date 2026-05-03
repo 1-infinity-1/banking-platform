@@ -13,7 +13,7 @@ import (
 )
 
 func UnaryErrorInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		res, err := handler(ctx, req)
 		if err == nil {
 			return res, nil
@@ -46,6 +46,5 @@ func UnaryErrorInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
 
 			return res, status.Error(codes.Internal, models.ErrInternal.Error())
 		}
-
 	}
 }

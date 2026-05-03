@@ -21,7 +21,13 @@ type App struct {
 	conn       *postgres.Conn
 }
 
-func NewApp(log *slog.Logger, port int, conn *postgres.Conn, accessManagementSvc authgrpc.AccessManagementService, authSvc authgrpc.AuthService) *App {
+func NewApp(
+	log *slog.Logger,
+	port int,
+	conn *postgres.Conn,
+	accessManagementSvc authgrpc.AccessManagementService,
+	authSvc authgrpc.AuthService,
+) *App {
 	gRPCServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.TraceUnaryServerInterceptor(),
@@ -46,12 +52,13 @@ func (a *App) Run(ctx context.Context) error {
 
 	a.log.With("op", op)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
+	lc := net.ListenConfig{}
+	lis, err := lc.Listen(ctx, "tcp", fmt.Sprintf(":%d", a.port))
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	a.log.Info("grpc server is running", slog.String("address", lis.Addr().String()))
+	a.log.InfoContext(ctx, "grpc server is running", slog.String("address", lis.Addr().String()))
 
 	go func() {
 		<-ctx.Done()
@@ -59,7 +66,8 @@ func (a *App) Run(ctx context.Context) error {
 		a.conn.Close()
 	}()
 
-	if err := a.gRPCServer.Serve(lis); err != nil {
+	err = a.gRPCServer.Serve(lis)
+	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 

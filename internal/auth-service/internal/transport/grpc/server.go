@@ -39,6 +39,9 @@ func (s *serverAPI) Logout(_ context.Context, _ *authpb.LogoutRequest) (*emptypb
 	panic("implement me")
 }
 
-func (s *serverAPI) RefreshToken(_ context.Context, _ *authpb.RefreshTokenRequest) (*authpb.RefreshTokenResponse, error) {
+func (s *serverAPI) RefreshToken(
+	_ context.Context,
+	_ *authpb.RefreshTokenRequest,
+) (*authpb.RefreshTokenResponse, error) {
 	panic("implement me")
 }

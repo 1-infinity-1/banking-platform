@@ -17,14 +17,18 @@ func NewRepository(db *postgres.Conn) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) CreateDeviceTx(ctx context.Context, tx pgx.Tx, userAgent, platform string) (*models.Device, error) {
+func (r *Repository) CreateDeviceTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	userAgent, platform string,
+) (*models.Device, error) {
 	query := `
 		INSERT INTO devices (user_agent, platform)
 		VALUES ($1, $2)
 		RETURNING id, public_id, user_agent, platform, created_at, updated_at
 	`
 
-	var dto DeviceDTO
+	var dto deviceDTO
 	err := tx.QueryRow(ctx, query, userAgent, platform).Scan(
 		&dto.id,
 		&dto.publicID,

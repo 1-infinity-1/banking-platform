@@ -19,7 +19,7 @@ func NewLoaderConfig(envFilePath string, prefix string) *LoaderConfig {
 	}
 }
 
-func (l *LoaderConfig) Load(cfg interface{}) error {
+func (l *LoaderConfig) Load(cfg any) error {
 	if l.envFilePath != "" {
 		_ = godotenv.Load(l.envFilePath)
 	}

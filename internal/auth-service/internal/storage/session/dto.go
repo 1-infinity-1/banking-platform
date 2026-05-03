@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type SessionDTO struct {
+type sessionDTO struct {
 	id         int64
 	publicID   uuid.UUID
 	userID     int64
@@ -19,7 +19,7 @@ type SessionDTO struct {
 	lastSeenAt time.Time
 }
 
-func (s *SessionDTO) ToDomain() (*models.Session, error) {
+func (s *sessionDTO) ToDomain() (*models.Session, error) {
 	status, err := models.ToSessionStatus(s.status)
 	if err != nil {
 		return nil, err
