@@ -3,20 +3,14 @@ package interceptor
 import (
 	"context"
 
+	"github.com/1-infinity-1/banking-platform/pkg/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-type traceKey struct{}
-
-type TraceContext struct {
-	TraceID   string
-	RequestID string
-}
-
 func TraceUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		tc := TraceContext{}
+		tc := trace.TraceContext{}
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			if vals := md.Get("x-trace-id"); len(vals) > 0 {
@@ -27,13 +21,8 @@ func TraceUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 			}
 		}
 
-		ctx = context.WithValue(ctx, traceKey{}, tc)
+		ctx = trace.ToContext(ctx, tc)
 
 		return handler(ctx, req)
 	}
-}
-
-func TraceFromContext(ctx context.Context) TraceContext {
-	tc, _ := ctx.Value(traceKey{}).(TraceContext)
-	return tc
 }

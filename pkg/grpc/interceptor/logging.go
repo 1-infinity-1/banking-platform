@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/1-infinity-1/banking-platform/pkg/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -21,7 +22,7 @@ func LoggingUnaryServerInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor
 			slog.String("method", info.FullMethod),
 		)
 
-		if tc := TraceFromContext(ctx); tc.TraceID != "" || tc.RequestID != "" {
+		if tc := trace.FromContext(ctx); tc.TraceID != "" || tc.RequestID != "" {
 			if tc.TraceID != "" {
 				fields = append(fields, slog.String("trace_id", tc.TraceID))
 			}
