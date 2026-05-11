@@ -6,5 +6,9 @@ package api
 type OperationName = string
 
 const (
-	PingOperation OperationName = "Ping"
+	CreateUserOperation   OperationName = "CreateUser"
+	LoginOperation        OperationName = "Login"
+	LogoutOperation       OperationName = "Logout"
+	PingOperation         OperationName = "Ping"
+	RefreshTokenOperation OperationName = "RefreshToken"
 )

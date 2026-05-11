@@ -8,12 +8,36 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateUser implements createUser operation.
+	//
+	// Creates a new user and assigns initial roles.
+	//
+	// POST /users
+	CreateUser(ctx context.Context, req *CreateUserRequest) (CreateUserRes, error)
+	// Login implements login operation.
+	//
+	// Authenticates user by login and password.
+	//
+	// POST /auth/login
+	Login(ctx context.Context, req *LoginRequest) (LoginRes, error)
+	// Logout implements logout operation.
+	//
+	// Revokes refresh token and closes related session.
+	//
+	// POST /auth/logout
+	Logout(ctx context.Context, req *LogoutRequest) (LogoutRes, error)
 	// Ping implements ping operation.
 	//
 	// Ping endpoint.
 	//
 	// GET /ping
 	Ping(ctx context.Context) (*PingResponse, error)
+	// RefreshToken implements refreshToken operation.
+	//
+	// Rotates refresh token and returns a new token pair.
+	//
+	// POST /auth/refresh
+	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (RefreshTokenRes, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

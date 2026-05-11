@@ -4,10 +4,190 @@ package api
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/go-faster/errors"
+	"github.com/google/uuid"
 )
 
 func (s *ErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
+}
+
+// Ref: #/components/schemas/AuthContext
+type AuthContext struct {
+	UserID          uuid.UUID `json:"user_id"`
+	SessionID       uuid.UUID `json:"session_id"`
+	RoleCodes       []string  `json:"role_codes"`
+	PermissionCodes []string  `json:"permission_codes"`
+}
+
+// GetUserID returns the value of UserID.
+func (s *AuthContext) GetUserID() uuid.UUID {
+	return s.UserID
+}
+
+// GetSessionID returns the value of SessionID.
+func (s *AuthContext) GetSessionID() uuid.UUID {
+	return s.SessionID
+}
+
+// GetRoleCodes returns the value of RoleCodes.
+func (s *AuthContext) GetRoleCodes() []string {
+	return s.RoleCodes
+}
+
+// GetPermissionCodes returns the value of PermissionCodes.
+func (s *AuthContext) GetPermissionCodes() []string {
+	return s.PermissionCodes
+}
+
+// SetUserID sets the value of UserID.
+func (s *AuthContext) SetUserID(val uuid.UUID) {
+	s.UserID = val
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *AuthContext) SetSessionID(val uuid.UUID) {
+	s.SessionID = val
+}
+
+// SetRoleCodes sets the value of RoleCodes.
+func (s *AuthContext) SetRoleCodes(val []string) {
+	s.RoleCodes = val
+}
+
+// SetPermissionCodes sets the value of PermissionCodes.
+func (s *AuthContext) SetPermissionCodes(val []string) {
+	s.PermissionCodes = val
+}
+
+type CreateUserBadRequest ErrorStatusCode
+
+func (*CreateUserBadRequest) createUserRes() {}
+
+type CreateUserConflict ErrorStatusCode
+
+func (*CreateUserConflict) createUserRes() {}
+
+// Ref: #/components/schemas/CreateUserRequest
+type CreateUserRequest struct {
+	// User login.
+	Login string `json:"login"`
+	// User email.
+	Email OptNilString `json:"email"`
+	// User phone.
+	Phone OptNilString `json:"phone"`
+	// Raw password.
+	Password  string   `json:"password"`
+	RoleCodes []string `json:"role_codes"`
+}
+
+// GetLogin returns the value of Login.
+func (s *CreateUserRequest) GetLogin() string {
+	return s.Login
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateUserRequest) GetEmail() OptNilString {
+	return s.Email
+}
+
+// GetPhone returns the value of Phone.
+func (s *CreateUserRequest) GetPhone() OptNilString {
+	return s.Phone
+}
+
+// GetPassword returns the value of Password.
+func (s *CreateUserRequest) GetPassword() string {
+	return s.Password
+}
+
+// GetRoleCodes returns the value of RoleCodes.
+func (s *CreateUserRequest) GetRoleCodes() []string {
+	return s.RoleCodes
+}
+
+// SetLogin sets the value of Login.
+func (s *CreateUserRequest) SetLogin(val string) {
+	s.Login = val
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateUserRequest) SetEmail(val OptNilString) {
+	s.Email = val
+}
+
+// SetPhone sets the value of Phone.
+func (s *CreateUserRequest) SetPhone(val OptNilString) {
+	s.Phone = val
+}
+
+// SetPassword sets the value of Password.
+func (s *CreateUserRequest) SetPassword(val string) {
+	s.Password = val
+}
+
+// SetRoleCodes sets the value of RoleCodes.
+func (s *CreateUserRequest) SetRoleCodes(val []string) {
+	s.RoleCodes = val
+}
+
+// Ref: #/components/schemas/CreateUserResponse
+type CreateUserResponse struct {
+	User User `json:"user"`
+}
+
+// GetUser returns the value of User.
+func (s *CreateUserResponse) GetUser() User {
+	return s.User
+}
+
+// SetUser sets the value of User.
+func (s *CreateUserResponse) SetUser(val User) {
+	s.User = val
+}
+
+func (*CreateUserResponse) createUserRes() {}
+
+// Ref: #/components/schemas/Device
+type Device struct {
+	// Device UUID.
+	ID uuid.UUID `json:"id"`
+	// Device platform.
+	Platform string `json:"platform"`
+	// User-Agent string.
+	UserAgent string `json:"user_agent"`
+}
+
+// GetID returns the value of ID.
+func (s *Device) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetPlatform returns the value of Platform.
+func (s *Device) GetPlatform() string {
+	return s.Platform
+}
+
+// GetUserAgent returns the value of UserAgent.
+func (s *Device) GetUserAgent() string {
+	return s.UserAgent
+}
+
+// SetID sets the value of ID.
+func (s *Device) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetPlatform sets the value of Platform.
+func (s *Device) SetPlatform(val string) {
+	s.Platform = val
+}
+
+// SetUserAgent sets the value of UserAgent.
+func (s *Device) SetUserAgent(val string) {
+	s.UserAgent = val
 }
 
 // Ref: #/components/schemas/Error
@@ -64,6 +244,301 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+type LoginBadRequest ErrorStatusCode
+
+func (*LoginBadRequest) loginRes() {}
+
+type LoginLocked ErrorStatusCode
+
+func (*LoginLocked) loginRes() {}
+
+// Ref: #/components/schemas/LoginRequest
+type LoginRequest struct {
+	// User login identifier, email or phone.
+	Login    string            `json:"login"`
+	Password string            `json:"password"`
+	Context  OptRequestContext `json:"context"`
+}
+
+// GetLogin returns the value of Login.
+func (s *LoginRequest) GetLogin() string {
+	return s.Login
+}
+
+// GetPassword returns the value of Password.
+func (s *LoginRequest) GetPassword() string {
+	return s.Password
+}
+
+// GetContext returns the value of Context.
+func (s *LoginRequest) GetContext() OptRequestContext {
+	return s.Context
+}
+
+// SetLogin sets the value of Login.
+func (s *LoginRequest) SetLogin(val string) {
+	s.Login = val
+}
+
+// SetPassword sets the value of Password.
+func (s *LoginRequest) SetPassword(val string) {
+	s.Password = val
+}
+
+// SetContext sets the value of Context.
+func (s *LoginRequest) SetContext(val OptRequestContext) {
+	s.Context = val
+}
+
+// Ref: #/components/schemas/LoginResponse
+type LoginResponse struct {
+	User        User        `json:"user"`
+	Session     Session     `json:"session"`
+	Tokens      TokenPair   `json:"tokens"`
+	AuthContext AuthContext `json:"auth_context"`
+}
+
+// GetUser returns the value of User.
+func (s *LoginResponse) GetUser() User {
+	return s.User
+}
+
+// GetSession returns the value of Session.
+func (s *LoginResponse) GetSession() Session {
+	return s.Session
+}
+
+// GetTokens returns the value of Tokens.
+func (s *LoginResponse) GetTokens() TokenPair {
+	return s.Tokens
+}
+
+// GetAuthContext returns the value of AuthContext.
+func (s *LoginResponse) GetAuthContext() AuthContext {
+	return s.AuthContext
+}
+
+// SetUser sets the value of User.
+func (s *LoginResponse) SetUser(val User) {
+	s.User = val
+}
+
+// SetSession sets the value of Session.
+func (s *LoginResponse) SetSession(val Session) {
+	s.Session = val
+}
+
+// SetTokens sets the value of Tokens.
+func (s *LoginResponse) SetTokens(val TokenPair) {
+	s.Tokens = val
+}
+
+// SetAuthContext sets the value of AuthContext.
+func (s *LoginResponse) SetAuthContext(val AuthContext) {
+	s.AuthContext = val
+}
+
+func (*LoginResponse) loginRes() {}
+
+type LoginUnauthorized ErrorStatusCode
+
+func (*LoginUnauthorized) loginRes() {}
+
+type LogoutBadRequest ErrorStatusCode
+
+func (*LogoutBadRequest) logoutRes() {}
+
+// LogoutNoContent is response for Logout operation.
+type LogoutNoContent struct{}
+
+func (*LogoutNoContent) logoutRes() {}
+
+// Ref: #/components/schemas/LogoutRequest
+type LogoutRequest struct {
+	// Refresh token to revoke.
+	RefreshToken string            `json:"refresh_token"`
+	Context      OptRequestContext `json:"context"`
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *LogoutRequest) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// GetContext returns the value of Context.
+func (s *LogoutRequest) GetContext() OptRequestContext {
+	return s.Context
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *LogoutRequest) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// SetContext sets the value of Context.
+func (s *LogoutRequest) SetContext(val OptRequestContext) {
+	s.Context = val
+}
+
+type LogoutUnauthorized ErrorStatusCode
+
+func (*LogoutUnauthorized) logoutRes() {}
+
+// NewOptNilString returns new OptNilString with value set to v.
+func NewOptNilString(v string) OptNilString {
+	return OptNilString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilString is optional nullable string.
+type OptNilString struct {
+	Value string
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilString was set.
+func (o OptNilString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilString) SetTo(v string) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilString) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilString) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v string
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilString) Get() (v string, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptRequestContext returns new OptRequestContext with value set to v.
+func NewOptRequestContext(v RequestContext) OptRequestContext {
+	return OptRequestContext{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRequestContext is optional RequestContext.
+type OptRequestContext struct {
+	Value RequestContext
+	Set   bool
+}
+
+// IsSet returns true if OptRequestContext was set.
+func (o OptRequestContext) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRequestContext) Reset() {
+	var v RequestContext
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRequestContext) SetTo(v RequestContext) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRequestContext) Get() (v RequestContext, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRequestContext) Or(d RequestContext) RequestContext {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptString returns new OptString with value set to v.
+func NewOptString(v string) OptString {
+	return OptString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptString is optional string.
+type OptString struct {
+	Value string
+	Set   bool
+}
+
+// IsSet returns true if OptString was set.
+func (o OptString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptString) SetTo(v string) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptString) Get() (v string, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // Ref: #/components/schemas/PingResponse
 type PingResponse struct {
 	Message string `json:"message"`
@@ -77,4 +552,440 @@ func (s *PingResponse) GetMessage() string {
 // SetMessage sets the value of Message.
 func (s *PingResponse) SetMessage(val string) {
 	s.Message = val
+}
+
+type RefreshTokenBadRequest ErrorStatusCode
+
+func (*RefreshTokenBadRequest) refreshTokenRes() {}
+
+// Ref: #/components/schemas/RefreshTokenRequest
+type RefreshTokenRequest struct {
+	// Refresh token to rotate.
+	RefreshToken string            `json:"refresh_token"`
+	Context      OptRequestContext `json:"context"`
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *RefreshTokenRequest) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// GetContext returns the value of Context.
+func (s *RefreshTokenRequest) GetContext() OptRequestContext {
+	return s.Context
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *RefreshTokenRequest) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// SetContext sets the value of Context.
+func (s *RefreshTokenRequest) SetContext(val OptRequestContext) {
+	s.Context = val
+}
+
+// Ref: #/components/schemas/RefreshTokenResponse
+type RefreshTokenResponse struct {
+	Tokens      TokenPair   `json:"tokens"`
+	AuthContext AuthContext `json:"auth_context"`
+}
+
+// GetTokens returns the value of Tokens.
+func (s *RefreshTokenResponse) GetTokens() TokenPair {
+	return s.Tokens
+}
+
+// GetAuthContext returns the value of AuthContext.
+func (s *RefreshTokenResponse) GetAuthContext() AuthContext {
+	return s.AuthContext
+}
+
+// SetTokens sets the value of Tokens.
+func (s *RefreshTokenResponse) SetTokens(val TokenPair) {
+	s.Tokens = val
+}
+
+// SetAuthContext sets the value of AuthContext.
+func (s *RefreshTokenResponse) SetAuthContext(val AuthContext) {
+	s.AuthContext = val
+}
+
+func (*RefreshTokenResponse) refreshTokenRes() {}
+
+type RefreshTokenUnauthorized ErrorStatusCode
+
+func (*RefreshTokenUnauthorized) refreshTokenRes() {}
+
+// Ref: #/components/schemas/RequestContext
+type RequestContext struct {
+	// Client User-Agent string.
+	UserAgent OptString `json:"user_agent"`
+	// Client platform.
+	Platform OptString `json:"platform"`
+}
+
+// GetUserAgent returns the value of UserAgent.
+func (s *RequestContext) GetUserAgent() OptString {
+	return s.UserAgent
+}
+
+// GetPlatform returns the value of Platform.
+func (s *RequestContext) GetPlatform() OptString {
+	return s.Platform
+}
+
+// SetUserAgent sets the value of UserAgent.
+func (s *RequestContext) SetUserAgent(val OptString) {
+	s.UserAgent = val
+}
+
+// SetPlatform sets the value of Platform.
+func (s *RequestContext) SetPlatform(val OptString) {
+	s.Platform = val
+}
+
+// Ref: #/components/schemas/Session
+type Session struct {
+	// Session UUID.
+	ID uuid.UUID `json:"id"`
+	// User UUID.
+	UserID     uuid.UUID     `json:"user_id"`
+	Status     SessionStatus `json:"status"`
+	Device     Device        `json:"device"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
+	ExpiresAt  time.Time     `json:"expires_at"`
+	LastSeenAt time.Time     `json:"last_seen_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Session) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetUserID returns the value of UserID.
+func (s *Session) GetUserID() uuid.UUID {
+	return s.UserID
+}
+
+// GetStatus returns the value of Status.
+func (s *Session) GetStatus() SessionStatus {
+	return s.Status
+}
+
+// GetDevice returns the value of Device.
+func (s *Session) GetDevice() Device {
+	return s.Device
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Session) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Session) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *Session) GetExpiresAt() time.Time {
+	return s.ExpiresAt
+}
+
+// GetLastSeenAt returns the value of LastSeenAt.
+func (s *Session) GetLastSeenAt() time.Time {
+	return s.LastSeenAt
+}
+
+// SetID sets the value of ID.
+func (s *Session) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *Session) SetUserID(val uuid.UUID) {
+	s.UserID = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Session) SetStatus(val SessionStatus) {
+	s.Status = val
+}
+
+// SetDevice sets the value of Device.
+func (s *Session) SetDevice(val Device) {
+	s.Device = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Session) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Session) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *Session) SetExpiresAt(val time.Time) {
+	s.ExpiresAt = val
+}
+
+// SetLastSeenAt sets the value of LastSeenAt.
+func (s *Session) SetLastSeenAt(val time.Time) {
+	s.LastSeenAt = val
+}
+
+// Ref: #/components/schemas/SessionStatus
+type SessionStatus string
+
+const (
+	SessionStatusActive  SessionStatus = "active"
+	SessionStatusRevoked SessionStatus = "revoked"
+	SessionStatusExpired SessionStatus = "expired"
+)
+
+// AllValues returns all SessionStatus values.
+func (SessionStatus) AllValues() []SessionStatus {
+	return []SessionStatus{
+		SessionStatusActive,
+		SessionStatusRevoked,
+		SessionStatusExpired,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s SessionStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case SessionStatusActive:
+		return []byte(s), nil
+	case SessionStatusRevoked:
+		return []byte(s), nil
+	case SessionStatusExpired:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *SessionStatus) UnmarshalText(data []byte) error {
+	switch SessionStatus(data) {
+	case SessionStatusActive:
+		*s = SessionStatusActive
+		return nil
+	case SessionStatusRevoked:
+		*s = SessionStatusRevoked
+		return nil
+	case SessionStatusExpired:
+		*s = SessionStatusExpired
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/TokenPair
+type TokenPair struct {
+	// JWT access token.
+	AccessToken string `json:"access_token"`
+	// Refresh token.
+	RefreshToken          string    `json:"refresh_token"`
+	TokenType             string    `json:"token_type"`
+	AccessTokenExpiresAt  time.Time `json:"access_token_expires_at"`
+	RefreshTokenExpiresAt time.Time `json:"refresh_token_expires_at"`
+}
+
+// GetAccessToken returns the value of AccessToken.
+func (s *TokenPair) GetAccessToken() string {
+	return s.AccessToken
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *TokenPair) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// GetTokenType returns the value of TokenType.
+func (s *TokenPair) GetTokenType() string {
+	return s.TokenType
+}
+
+// GetAccessTokenExpiresAt returns the value of AccessTokenExpiresAt.
+func (s *TokenPair) GetAccessTokenExpiresAt() time.Time {
+	return s.AccessTokenExpiresAt
+}
+
+// GetRefreshTokenExpiresAt returns the value of RefreshTokenExpiresAt.
+func (s *TokenPair) GetRefreshTokenExpiresAt() time.Time {
+	return s.RefreshTokenExpiresAt
+}
+
+// SetAccessToken sets the value of AccessToken.
+func (s *TokenPair) SetAccessToken(val string) {
+	s.AccessToken = val
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *TokenPair) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// SetTokenType sets the value of TokenType.
+func (s *TokenPair) SetTokenType(val string) {
+	s.TokenType = val
+}
+
+// SetAccessTokenExpiresAt sets the value of AccessTokenExpiresAt.
+func (s *TokenPair) SetAccessTokenExpiresAt(val time.Time) {
+	s.AccessTokenExpiresAt = val
+}
+
+// SetRefreshTokenExpiresAt sets the value of RefreshTokenExpiresAt.
+func (s *TokenPair) SetRefreshTokenExpiresAt(val time.Time) {
+	s.RefreshTokenExpiresAt = val
+}
+
+// Ref: #/components/schemas/User
+type User struct {
+	// User UUID.
+	ID uuid.UUID `json:"id"`
+	// User login.
+	Login string `json:"login"`
+	// User email.
+	Email OptNilString `json:"email"`
+	// User phone.
+	Phone     OptNilString `json:"phone"`
+	Status    UserStatus   `json:"status"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *User) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetLogin returns the value of Login.
+func (s *User) GetLogin() string {
+	return s.Login
+}
+
+// GetEmail returns the value of Email.
+func (s *User) GetEmail() OptNilString {
+	return s.Email
+}
+
+// GetPhone returns the value of Phone.
+func (s *User) GetPhone() OptNilString {
+	return s.Phone
+}
+
+// GetStatus returns the value of Status.
+func (s *User) GetStatus() UserStatus {
+	return s.Status
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *User) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *User) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *User) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetLogin sets the value of Login.
+func (s *User) SetLogin(val string) {
+	s.Login = val
+}
+
+// SetEmail sets the value of Email.
+func (s *User) SetEmail(val OptNilString) {
+	s.Email = val
+}
+
+// SetPhone sets the value of Phone.
+func (s *User) SetPhone(val OptNilString) {
+	s.Phone = val
+}
+
+// SetStatus sets the value of Status.
+func (s *User) SetStatus(val UserStatus) {
+	s.Status = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *User) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *User) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+// Ref: #/components/schemas/UserStatus
+type UserStatus string
+
+const (
+	UserStatusActive   UserStatus = "active"
+	UserStatusBlocked  UserStatus = "blocked"
+	UserStatusLocked   UserStatus = "locked"
+	UserStatusDisabled UserStatus = "disabled"
+)
+
+// AllValues returns all UserStatus values.
+func (UserStatus) AllValues() []UserStatus {
+	return []UserStatus{
+		UserStatusActive,
+		UserStatusBlocked,
+		UserStatusLocked,
+		UserStatusDisabled,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UserStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case UserStatusActive:
+		return []byte(s), nil
+	case UserStatusBlocked:
+		return []byte(s), nil
+	case UserStatusLocked:
+		return []byte(s), nil
+	case UserStatusDisabled:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UserStatus) UnmarshalText(data []byte) error {
+	switch UserStatus(data) {
+	case UserStatusActive:
+		*s = UserStatusActive
+		return nil
+	case UserStatusBlocked:
+		*s = UserStatusBlocked
+		return nil
+	case UserStatusLocked:
+		*s = UserStatusLocked
+		return nil
+	case UserStatusDisabled:
+		*s = UserStatusDisabled
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }

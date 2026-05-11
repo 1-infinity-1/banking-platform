@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/1-infinity-1/banking-platform/internal/gateway-service/internal/app"
 	"github.com/1-infinity-1/banking-platform/internal/gateway-service/internal/config"
 	loadCfg "github.com/1-infinity-1/banking-platform/pkg/config"
@@ -15,24 +17,21 @@ const (
 
 var runApplicationCmd = &cobra.Command{
 	Use: "application",
-	Run: func(cmd *cobra.Command, _ []string) {
-		loadCfg := loadCfg.NewLoaderConfig(envFilePath, prefix)
+	RunE: func(cmd *cobra.Command, _ []string) error {
+		loader := loadCfg.NewLoaderConfig(envFilePath, prefix)
 
 		var cfg config.Config
-		if err := loadCfg.Load(&cfg); err != nil {
-			panic(err)
+		if err := loader.Load(&cfg); err != nil {
+			return fmt.Errorf("loader.Load: %w", err)
 		}
 
 		log := logger.NewLogger(cfg.LogLevel)
 
 		application, err := app.NewApp(log, cfg)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("app.NewApp: %w", err)
 		}
 
-		err = application.HTTPSrv.Run(cmd.Context())
-		if err != nil {
-			panic(err)
-		}
+		return application.Run(cmd.Context())
 	},
 }

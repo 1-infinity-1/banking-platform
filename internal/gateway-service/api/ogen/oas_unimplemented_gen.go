@@ -13,12 +13,48 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateUser implements createUser operation.
+//
+// Creates a new user and assigns initial roles.
+//
+// POST /users
+func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserRequest) (r CreateUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Login implements login operation.
+//
+// Authenticates user by login and password.
+//
+// POST /auth/login
+func (UnimplementedHandler) Login(ctx context.Context, req *LoginRequest) (r LoginRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Logout implements logout operation.
+//
+// Revokes refresh token and closes related session.
+//
+// POST /auth/logout
+func (UnimplementedHandler) Logout(ctx context.Context, req *LogoutRequest) (r LogoutRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // Ping implements ping operation.
 //
 // Ping endpoint.
 //
 // GET /ping
 func (UnimplementedHandler) Ping(ctx context.Context) (r *PingResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RefreshToken implements refreshToken operation.
+//
+// Rotates refresh token and returns a new token pair.
+//
+// POST /auth/refresh
+func (UnimplementedHandler) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (r RefreshTokenRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
