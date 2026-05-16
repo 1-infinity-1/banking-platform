@@ -10,7 +10,7 @@ import (
 
 func TraceUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		tc := trace.TraceContext{}
+		tc := trace.Context{}
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			if vals := md.Get("x-trace-id"); len(vals) > 0 {

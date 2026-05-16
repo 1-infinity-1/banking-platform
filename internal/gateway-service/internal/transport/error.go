@@ -26,6 +26,14 @@ func (g *GatewayHandler) NewError(_ context.Context, err error) *api.ErrorStatus
 		}
 	}
 
+	var notFoundErr *models.NotFoundError
+	if errors.As(err, &notFoundErr) {
+		return &api.ErrorStatusCode{
+			StatusCode: http.StatusNotFound,
+			Response:   api.Error{Code: "NOT_FOUND", Message: notFoundErr.Error()},
+		}
+	}
+
 	return &api.ErrorStatusCode{
 		StatusCode: http.StatusInternalServerError,
 		Response:   api.Error{Code: "INTERNAL_ERROR", Message: "internal server error"},

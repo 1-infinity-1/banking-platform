@@ -2224,6 +2224,8 @@ func (s *UserStatus) Decode(d *jx.Decoder) error {
 	}
 	// Try to use constant string.
 	switch UserStatus(v) {
+	case UserStatusUnspecified:
+		*s = UserStatusUnspecified
 	case UserStatusActive:
 		*s = UserStatusActive
 	case UserStatusBlocked:

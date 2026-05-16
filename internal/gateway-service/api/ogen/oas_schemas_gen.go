@@ -938,15 +938,17 @@ func (s *User) SetUpdatedAt(val time.Time) {
 type UserStatus string
 
 const (
-	UserStatusActive   UserStatus = "active"
-	UserStatusBlocked  UserStatus = "blocked"
-	UserStatusLocked   UserStatus = "locked"
-	UserStatusDisabled UserStatus = "disabled"
+	UserStatusUnspecified UserStatus = "unspecified"
+	UserStatusActive      UserStatus = "active"
+	UserStatusBlocked     UserStatus = "blocked"
+	UserStatusLocked      UserStatus = "locked"
+	UserStatusDisabled    UserStatus = "disabled"
 )
 
 // AllValues returns all UserStatus values.
 func (UserStatus) AllValues() []UserStatus {
 	return []UserStatus{
+		UserStatusUnspecified,
 		UserStatusActive,
 		UserStatusBlocked,
 		UserStatusLocked,
@@ -957,6 +959,8 @@ func (UserStatus) AllValues() []UserStatus {
 // MarshalText implements encoding.TextMarshaler.
 func (s UserStatus) MarshalText() ([]byte, error) {
 	switch s {
+	case UserStatusUnspecified:
+		return []byte(s), nil
 	case UserStatusActive:
 		return []byte(s), nil
 	case UserStatusBlocked:
@@ -973,6 +977,9 @@ func (s UserStatus) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *UserStatus) UnmarshalText(data []byte) error {
 	switch UserStatus(data) {
+	case UserStatusUnspecified:
+		*s = UserStatusUnspecified
+		return nil
 	case UserStatusActive:
 		*s = UserStatusActive
 		return nil

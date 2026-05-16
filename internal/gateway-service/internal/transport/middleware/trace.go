@@ -18,7 +18,7 @@ func Trace() api.Middleware {
 			requestID = uuid.NewString()
 		}
 
-		ctx := trace.ToContext(req.Context, trace.TraceContext{
+		ctx := trace.ToContext(req.Context, trace.Context{
 			TraceID:   traceID,
 			RequestID: requestID,
 		})

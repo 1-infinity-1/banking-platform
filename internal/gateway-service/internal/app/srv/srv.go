@@ -9,7 +9,7 @@ import (
 	"time"
 
 	api "github.com/1-infinity-1/banking-platform/internal/gateway-service/api/ogen"
-	tracemw "github.com/1-infinity-1/banking-platform/internal/gateway-service/internal/transport/middleware"
+	httpmw "github.com/1-infinity-1/banking-platform/internal/gateway-service/internal/transport/middleware"
 )
 
 const (
@@ -24,7 +24,7 @@ type App struct {
 }
 
 func NewApp(hnd api.Handler, log *slog.Logger, port string) (*App, error) {
-	srv, err := api.NewServer(hnd, api.WithMiddleware(tracemw.Trace()))
+	srv, err := api.NewServer(hnd, api.WithMiddleware(httpmw.Trace(), httpmw.Logging(log)))
 	if err != nil {
 		return nil, fmt.Errorf("api.NewServer: %w", err)
 	}

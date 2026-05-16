@@ -216,6 +216,8 @@ func (s *User) Validate() error {
 
 func (s UserStatus) Validate() error {
 	switch s {
+	case "unspecified":
+		return nil
 	case "active":
 		return nil
 	case "blocked":
