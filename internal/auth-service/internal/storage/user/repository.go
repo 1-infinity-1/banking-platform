@@ -70,7 +70,7 @@ func (r *Repository) CreateUserTx(
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return nil, models.NewInvalidParamsError("unique", "this data is already in use")
+			return nil, models.NewConflictError("this data is already in use")
 		}
 		return nil, fmt.Errorf("r.db.Exec %w", err)
 	}

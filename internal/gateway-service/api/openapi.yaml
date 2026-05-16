@@ -1,19 +1,26 @@
 openapi: 3.0.3
 
 info:
-  title: API
+  title: Gateway API
   version: 1.0.0
-  description: API for ogen generation
+  description: HTTP API of gateway service.
 
 servers:
   - url: http://localhost:8081
+
+tags:
+  - name: auth
+    description: Authentication endpoints
+  - name: users
+    description: User management endpoints
 
 paths:
   /ping:
     get:
       operationId: ping
+      tags: [health]
       summary: Health check
-      description: ping endpoint
+      description: Ping endpoint
       responses:
         "200":
           description: Pong response
@@ -22,13 +29,119 @@ paths:
               schema:
                 $ref: "#/components/schemas/PingResponse"
         default:
-          description: Unexpected error
+          $ref: "#/components/responses/Error"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login user
+      description: Authenticates user by login and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successful authentication
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "423":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout user
+      description: Revokes refresh token and closes related session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+      responses:
+        "204":
+          description: Logout completed
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Refresh tokens
+      description: Rotates refresh token and returns a new token pair.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "200":
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponse"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /users:
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create user
+      description: Creates a new user and assigns initial roles.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUserResponse"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
 
 components:
+  responses:
+    Error:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
   schemas:
     PingResponse:
       type: object
@@ -53,3 +166,274 @@ components:
           type: string
           description: Human-readable error message
           example: Internal server error
+
+    RequestContext:
+      type: object
+      properties:
+        user_agent:
+          type: string
+          description: Client User-Agent string
+          example: Mozilla/5.0
+        platform:
+          type: string
+          description: Client platform
+          example: web
+
+    UserStatus:
+      type: string
+      enum:
+        - unspecified
+        - active
+        - blocked
+        - locked
+        - disabled
+
+    SessionStatus:
+      type: string
+      enum:
+        - active
+        - revoked
+        - expired
+
+    User:
+      type: object
+      required:
+        - id
+        - login
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User UUID
+        login:
+          type: string
+          description: User login
+        email:
+          type: string
+          nullable: true
+          description: User email
+        phone:
+          type: string
+          nullable: true
+          description: User phone
+        status:
+          $ref: "#/components/schemas/UserStatus"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Device:
+      type: object
+      required:
+        - id
+        - platform
+        - user_agent
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Device UUID
+        platform:
+          type: string
+          description: Device platform
+          example: ios
+        user_agent:
+          type: string
+          description: User-Agent string
+
+    Session:
+      type: object
+      required:
+        - id
+        - user_id
+        - status
+        - device
+        - created_at
+        - updated_at
+        - expires_at
+        - last_seen_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Session UUID
+        user_id:
+          type: string
+          format: uuid
+          description: User UUID
+        status:
+          $ref: "#/components/schemas/SessionStatus"
+        device:
+          $ref: "#/components/schemas/Device"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        last_seen_at:
+          type: string
+          format: date-time
+
+    TokenPair:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+        - access_token_expires_at
+        - refresh_token_expires_at
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: Refresh token
+        token_type:
+          type: string
+          example: Bearer
+        access_token_expires_at:
+          type: string
+          format: date-time
+        refresh_token_expires_at:
+          type: string
+          format: date-time
+
+    AuthContext:
+      type: object
+      required:
+        - user_id
+        - session_id
+        - role_codes
+        - permission_codes
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        role_codes:
+          type: array
+          items:
+            type: string
+          example: ["customer"]
+        permission_codes:
+          type: array
+          items:
+            type: string
+          example: ["accounts.read", "payments.create"]
+
+    LoginRequest:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+          description: User login identifier, email or phone
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: secret123
+        context:
+          $ref: "#/components/schemas/RequestContext"
+
+    LoginResponse:
+      type: object
+      required:
+        - user
+        - session
+        - tokens
+        - auth_context
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        session:
+          $ref: "#/components/schemas/Session"
+        tokens:
+          $ref: "#/components/schemas/TokenPair"
+        auth_context:
+          $ref: "#/components/schemas/AuthContext"
+
+    LogoutRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token to revoke
+        context:
+          $ref: "#/components/schemas/RequestContext"
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token to rotate
+        context:
+          $ref: "#/components/schemas/RequestContext"
+
+    RefreshTokenResponse:
+      type: object
+      required:
+        - tokens
+        - auth_context
+      properties:
+        tokens:
+          $ref: "#/components/schemas/TokenPair"
+        auth_context:
+          $ref: "#/components/schemas/AuthContext"
+
+    CreateUserRequest:
+      type: object
+      required:
+        - login
+        - password
+        - role_codes
+      properties:
+        login:
+          type: string
+          description: User login
+          example: user@example.com
+        email:
+          type: string
+          nullable: true
+          description: User email
+        phone:
+          type: string
+          nullable: true
+          description: User phone
+        password:
+          type: string
+          format: password
+          description: Raw password
+        role_codes:
+          type: array
+          items:
+            type: string
+          example: ["customer"]
+
+    CreateUserResponse:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          $ref: "#/components/schemas/User"

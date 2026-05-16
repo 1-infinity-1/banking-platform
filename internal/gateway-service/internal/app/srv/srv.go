@@ -9,7 +9,7 @@ import (
 	"time"
 
 	api "github.com/1-infinity-1/banking-platform/internal/gateway-service/api/ogen"
-	"github.com/1-infinity-1/banking-platform/internal/gateway-service/internal/transport"
+	httpmw "github.com/1-infinity-1/banking-platform/internal/gateway-service/internal/transport/middleware"
 )
 
 const (
@@ -23,8 +23,8 @@ type App struct {
 	port       string
 }
 
-func NewApp(hnd *transport.GatewayHandler, log *slog.Logger, port string) (*App, error) {
-	srv, err := api.NewServer(hnd)
+func NewApp(hnd api.Handler, log *slog.Logger, port string) (*App, error) {
+	srv, err := api.NewServer(hnd, api.WithMiddleware(httpmw.Trace(), httpmw.Logging(log)))
 	if err != nil {
 		return nil, fmt.Errorf("api.NewServer: %w", err)
 	}
@@ -39,7 +39,7 @@ func NewApp(hnd *transport.GatewayHandler, log *slog.Logger, port string) (*App,
 func (a *App) Run(ctx context.Context) error {
 	const op = "httpApp.Run"
 
-	a.log.With("op", op)
+	log := a.log.With("op", op)
 
 	srv := &http.Server{
 		Addr:              ":" + a.port,
@@ -57,7 +57,7 @@ func (a *App) Run(ctx context.Context) error {
 		_ = srv.Shutdown(shutdownCtx)
 	}()
 
-	a.log.InfoContext(ctx, "api server is running", slog.String("address", srv.Addr))
+	log.InfoContext(ctx, "api server is running", slog.String("address", srv.Addr))
 
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("%s: %w", op, err)

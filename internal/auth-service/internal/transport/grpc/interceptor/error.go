@@ -6,7 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/models"
-	"github.com/1-infinity-1/banking-platform/pkg/grpc/interceptor"
+	"github.com/1-infinity-1/banking-platform/pkg/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -27,6 +27,7 @@ func UnaryErrorInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
 			notFoundErr   *models.NotFoundError
 			invalidParams *models.InvalidParamsError
 			businessErr   *models.BusinessError
+			conflictErr   *models.ConflictError
 		)
 		switch {
 		case errors.As(err, &notFoundErr):
@@ -35,8 +36,10 @@ func UnaryErrorInterceptor(log *slog.Logger) grpc.UnaryServerInterceptor {
 			return res, status.Error(codes.InvalidArgument, invalidParams.Error())
 		case errors.As(err, &businessErr):
 			return res, status.Error(codes.FailedPrecondition, businessErr.Error())
+		case errors.As(err, &conflictErr):
+			return res, status.Error(codes.AlreadyExists, conflictErr.Error())
 		default:
-			tc := interceptor.TraceFromContext(ctx)
+			tc := trace.FromContext(ctx)
 			log.Error("unexpected internal error",
 				slog.String("method", info.FullMethod),
 				slog.String("trace_id", tc.TraceID),

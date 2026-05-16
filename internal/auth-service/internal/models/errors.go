@@ -45,3 +45,13 @@ func NewBusinessError(message string) *BusinessError {
 func (e *BusinessError) Error() string {
 	return fmt.Sprintf("business error: %s", e.message)
 }
+
+type ConflictError struct {
+	message string
+}
+
+func NewConflictError(message string) *ConflictError {
+	return &ConflictError{message: message}
+}
+
+func (e *ConflictError) Error() string { return e.message }
