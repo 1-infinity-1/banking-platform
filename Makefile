@@ -1,6 +1,6 @@
 BIN_DIR := $(CURDIR)/bin
 PROTO_DIR := pkg/proto
-PROTO_FILE := $(PROTO_DIR)/auth/auth.proto
+PROTO_FILES := $(shell find $(PROTO_DIR) -name "*.proto" -not -path "*/generated/*")
 OUT_DIR := pkg/proto/generated/go
 
 PROTOC := protoc
@@ -20,12 +20,12 @@ tools:
 	GOBIN=$(BIN_DIR) go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VERSION)
 	GOBIN=$(BIN_DIR) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VERSION)
 
-# Generate Go code from .proto files
-# Генерирует Go код из .proto файлов
+# Generate Go code from all .proto files
+# Генерирует Go код из всех .proto файлов
 proto: tools
 	PATH="$(BIN_DIR):$$PATH" $(PROTOC) \
 		-I $(PROTO_DIR) \
-		$(PROTO_FILE) \
+		$(PROTO_FILES) \
 		--go_out=$(OUT_DIR) \
 		--go_opt=paths=source_relative \
 		--go-grpc_out=$(OUT_DIR) \

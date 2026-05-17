@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package ledger.v1;
+
+option go_package = "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/ledger;ledgerpb";
+
+import "google/protobuf/timestamp.proto";
+
+service LedgerService {
+  rpc GetStatement(GetStatementRequest) returns (Statement);
+}
+
+message GetStatementRequest {
+  string account_id = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to   = 3;
+}
+
+message Statement {
+  string         account_id = 1;
+  repeated LedgerEntry entries = 2;
+}
+
+message LedgerEntry {
+  string id             = 1;
+  string transaction_id = 2;
+  string account_id     = 3;
+  string type           = 4;
+  string amount         = 5;
+  string currency       = 6;
+  string balance_after  = 7;
+  string description    = 8;
+  google.protobuf.Timestamp occurred_at = 9;
+  google.protobuf.Timestamp created_at  = 10;
+}
