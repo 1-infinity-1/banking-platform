@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package account.v1;
+
+option go_package = "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/account;accountpb";
+
+import "google/protobuf/timestamp.proto";
+
+enum AccountStatus {
+  ACCOUNT_STATUS_UNSPECIFIED = 0;
+  ACCOUNT_STATUS_ACTIVE      = 1;
+  ACCOUNT_STATUS_BLOCKED     = 2;
+  ACCOUNT_STATUS_CLOSED      = 3;
+}
+
+message Account {
+  string        id         = 1; // UUID.
+  string        user_id    = 2; // UUID.
+  string        currency   = 3;
+  string        balance    = 4; // Decimal as string.
+  AccountStatus status     = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message Balance {
+  string account_id = 1; // UUID.
+  string amount     = 2; // Decimal as string.
+  string currency   = 3;
+}
+
+message AccountsList {
+  repeated Account accounts = 1;
+}
+
+service AccountService {
+  rpc CreateAccount(CreateAccountRequest) returns (Account);
+  rpc GetUserAccounts(GetUserAccountsRequest) returns (AccountsList);
+  rpc GetAccount(GetAccountRequest) returns (Account);
+  rpc GetBalance(GetBalanceRequest) returns (Balance);
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse);
+  rpc Debit(DebitRequest) returns (DebitResponse);
+  rpc Credit(CreditRequest) returns (CreditResponse);
+}
+
+message CreateAccountRequest {
+  string user_id  = 1; // UUID.
+  string currency = 2;
+}
+
+message GetUserAccountsRequest {
+  string user_id = 1; // UUID.
+}
+
+message GetAccountRequest {
+  string account_id = 1; // UUID.
+}
+
+message GetBalanceRequest {
+  string account_id = 1; // UUID.
+}
+
+message UpdateStatusRequest {
+  string        account_id = 1; // UUID.
+  AccountStatus status     = 2;
+}
+
+message UpdateStatusResponse {
+  Account account = 1;
+}
+
+message DebitRequest {
+  string account_id       = 1; // UUID.
+  string amount           = 2; // Decimal as string.
+  string idempotency_key  = 3;
+}
+
+message DebitResponse {
+  string account_id    = 1; // UUID.
+  string balance_after = 2; // Decimal as string.
+}
+
+message CreditRequest {
+  string account_id       = 1; // UUID.
+  string amount           = 2; // Decimal as string.
+  string idempotency_key  = 3;
+}
+
+message CreditResponse {
+  string account_id    = 1; // UUID.
+  string balance_after = 2; // Decimal as string.
+}

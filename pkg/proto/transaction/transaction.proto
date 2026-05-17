@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package transaction.v1;
+
+option go_package = "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/transaction;transactionpb";
+
+import "google/protobuf/timestamp.proto";
+
+enum TransactionStatus {
+  TRANSACTION_STATUS_UNSPECIFIED = 0;
+  TRANSACTION_STATUS_PENDING     = 1;
+  TRANSACTION_STATUS_COMPLETED   = 2;
+  TRANSACTION_STATUS_FAILED      = 3;
+  TRANSACTION_STATUS_CANCELLED   = 4;
+}
+
+message Transaction {
+  string            id               = 1; // UUID.
+  optional string   from_account_id  = 2; // UUID, nil for replenishments.
+  string            to_account_id    = 3; // UUID.
+  string            amount           = 4; // Decimal as string.
+  string            currency         = 5;
+  TransactionStatus status           = 6;
+  string            idempotency_key  = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message TransactionsList {
+  repeated Transaction transactions = 1;
+}
+
+service TransactionService {
+  rpc Transfer(TransferRequest) returns (Transaction);
+  rpc Replenish(ReplenishRequest) returns (Transaction);
+  rpc GetHistory(GetHistoryRequest) returns (TransactionsList);
+  rpc GetTransaction(GetTransactionRequest) returns (Transaction);
+}
+
+message TransferRequest {
+  string from_account_id  = 1; // UUID.
+  string to_account_id    = 2; // UUID.
+  string amount           = 3; // Decimal as string.
+  string currency         = 4;
+  string idempotency_key  = 5;
+}
+
+message ReplenishRequest {
+  string to_account_id    = 1; // UUID.
+  string amount           = 2; // Decimal as string.
+  string currency         = 3;
+  string idempotency_key  = 4;
+}
+
+message GetHistoryRequest {
+  string account_id = 1; // UUID.
+  int32  limit      = 2;
+  int32  offset     = 3;
+}
+
+message GetTransactionRequest {
+  string transaction_id = 1; // UUID.
+}
