@@ -13,3 +13,12 @@ type TokenPair struct {
 	AccessTokenExpiresAt  time.Time
 	RefreshTokenExpiresAt time.Time
 }
+
+type RefreshToken struct {
+	ID        int64
+	SessionID int64
+	TokenHash string
+	ExpiresAt time.Time
+	RevokedAt *time.Time
+	CreatedAt time.Time
+}

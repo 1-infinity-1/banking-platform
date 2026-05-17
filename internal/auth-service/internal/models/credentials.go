@@ -12,3 +12,9 @@ type LoginResult struct {
 	Device  Device
 	Tokens  TokenPair
 }
+
+type RefreshTokenResult struct {
+	Tokens  TokenPair
+	User    User
+	Session Session
+}

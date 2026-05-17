@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/models"
 	"github.com/1-infinity-1/banking-platform/pkg/infrastructure/postgres"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-
-	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/models"
 )
 
 type Repository struct {
@@ -125,6 +124,53 @@ func (r *Repository) GetByLogin(ctx context.Context, login string) (*models.User
 			return nil, models.NewNotFoundError("user not found")
 		}
 		return nil, fmt.Errorf("r.db.QueryRow: %w", err)
+	}
+
+	return dto.ToDomain()
+}
+
+func (r *Repository) GetByIDTx(ctx context.Context, tx pgx.Tx, id int64) (*models.User, error) {
+	query := `
+		SELECT
+		    u.id,
+			u.public_id,
+			u.login,
+			u.email,
+			u.phone,
+			u.password_hash,
+			u.status,
+			array_agg(DISTINCT r.code) AS roles,
+			array_agg(DISTINCT p.code) AS permissions,
+			u.created_at,
+		    u.updated_at
+		FROM users u
+		JOIN user_roles ur ON ur.user_id = u.id
+		JOIN roles r ON r.id = ur.role_id
+		JOIN role_permissions rp ON rp.role_id = r.id
+		JOIN permissions p ON p.id = rp.permission_id
+		WHERE u.id = $1
+		GROUP BY u.id
+	`
+
+	var dto userDTO
+	err := tx.QueryRow(ctx, query, id).Scan(
+		&dto.id,
+		&dto.publicID,
+		&dto.login,
+		&dto.email,
+		&dto.phone,
+		&dto.passwordHash,
+		&dto.status,
+		&dto.roles,
+		&dto.permissions,
+		&dto.createdAt,
+		&dto.updatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, models.NewNotFoundError("user not found")
+		}
+		return nil, fmt.Errorf("tx.QueryRow: %w", err)
 	}
 
 	return dto.ToDomain()

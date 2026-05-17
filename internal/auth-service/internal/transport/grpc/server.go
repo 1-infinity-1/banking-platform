@@ -6,11 +6,12 @@ import (
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/models"
 	authpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/auth"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AuthService interface {
 	Login(ctx context.Context, credentials models.LoginCredentials) (*models.LoginResult, error)
+	Logout(ctx context.Context, refreshToken string) error
+	RefreshToken(ctx context.Context, refreshToken string) (*models.RefreshTokenResult, error)
 }
 
 type AccessManagementService interface {
@@ -33,15 +34,4 @@ func NewServerAPI(gRPC *grpc.Server, accessManagementSvc AccessManagementService
 
 	authpb.RegisterAuthServiceServer(gRPC, srv)
 	authpb.RegisterAccessManagementServiceServer(gRPC, srv)
-}
-
-func (s *serverAPI) Logout(_ context.Context, _ *authpb.LogoutRequest) (*emptypb.Empty, error) {
-	panic("implement me")
-}
-
-func (s *serverAPI) RefreshToken(
-	_ context.Context,
-	_ *authpb.RefreshTokenRequest,
-) (*authpb.RefreshTokenResponse, error) {
-	panic("implement me")
 }
