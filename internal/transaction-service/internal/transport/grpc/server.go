@@ -18,6 +18,7 @@ type TransactionService interface {
 
 type serverAPI struct {
 	transactionpb.UnimplementedTransactionServiceServer
+
 	svc TransactionService
 }
 

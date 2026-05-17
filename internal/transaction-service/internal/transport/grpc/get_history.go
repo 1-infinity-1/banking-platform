@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *serverAPI) GetHistory(_ context.Context, _ *transactionpb.GetHistoryRequest) (*transactionpb.TransactionsList, error) {
+func (s *serverAPI) GetHistory(
+	_ context.Context,
+	_ *transactionpb.GetHistoryRequest,
+) (*transactionpb.TransactionsList, error) {
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

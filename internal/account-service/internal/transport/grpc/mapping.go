@@ -5,6 +5,7 @@ import (
 	accountpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/account"
 )
 
+//nolint:unused // scaffold: used when implementing TODO handlers
 func toProtoAccountStatus(s models.AccountStatus) accountpb.AccountStatus {
 	switch s {
 	case models.AccountStatusActive:
@@ -19,8 +20,11 @@ func toProtoAccountStatus(s models.AccountStatus) accountpb.AccountStatus {
 	return accountpb.AccountStatus_ACCOUNT_STATUS_UNSPECIFIED
 }
 
+//nolint:unused // scaffold: used when implementing TODO handlers
 func fromProtoAccountStatus(s accountpb.AccountStatus) models.AccountStatus {
 	switch s {
+	case accountpb.AccountStatus_ACCOUNT_STATUS_UNSPECIFIED:
+		return models.AccountStatusUnspecified
 	case accountpb.AccountStatus_ACCOUNT_STATUS_ACTIVE:
 		return models.AccountStatusActive
 	case accountpb.AccountStatus_ACCOUNT_STATUS_BLOCKED:

@@ -21,6 +21,7 @@ type AccountService interface {
 
 type serverAPI struct {
 	accountpb.UnimplementedAccountServiceServer
+
 	svc AccountService
 }
 

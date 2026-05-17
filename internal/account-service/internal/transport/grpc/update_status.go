@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *serverAPI) UpdateStatus(_ context.Context, _ *accountpb.UpdateStatusRequest) (*accountpb.UpdateStatusResponse, error) {
+func (s *serverAPI) UpdateStatus(
+	_ context.Context,
+	_ *accountpb.UpdateStatusRequest,
+) (*accountpb.UpdateStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

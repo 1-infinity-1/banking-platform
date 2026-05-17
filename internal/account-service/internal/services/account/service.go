@@ -34,37 +34,37 @@ func NewService(txManager txManager, accountRepo accountRepo) *Service {
 	}
 }
 
-func (s *Service) CreateAccount(ctx context.Context, req models.CreateAccountRequest) (*models.Account, error) {
+func (s *Service) CreateAccount(_ context.Context, _ models.CreateAccountRequest) (*models.Account, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("CreateAccount: %w", models.ErrInternal)
 }
 
-func (s *Service) GetUserAccounts(ctx context.Context, userID uuid.UUID) ([]*models.Account, error) {
+func (s *Service) GetUserAccounts(_ context.Context, _ uuid.UUID) ([]*models.Account, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("GetUserAccounts: %w", models.ErrInternal)
 }
 
-func (s *Service) GetAccount(ctx context.Context, accountID uuid.UUID) (*models.Account, error) {
+func (s *Service) GetAccount(_ context.Context, _ uuid.UUID) (*models.Account, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("GetAccount: %w", models.ErrInternal)
 }
 
-func (s *Service) GetBalance(ctx context.Context, accountID uuid.UUID) (*models.Balance, error) {
+func (s *Service) GetBalance(_ context.Context, _ uuid.UUID) (*models.Balance, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("GetBalance: %w", models.ErrInternal)
 }
 
-func (s *Service) UpdateStatus(ctx context.Context, req models.UpdateStatusRequest) (*models.Account, error) {
+func (s *Service) UpdateStatus(_ context.Context, _ models.UpdateStatusRequest) (*models.Account, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("UpdateStatus: %w", models.ErrInternal)
 }
 
-func (s *Service) Debit(ctx context.Context, req models.DebitRequest) (*models.DebitResult, error) {
+func (s *Service) Debit(_ context.Context, _ models.DebitRequest) (*models.DebitResult, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("Debit: %w", models.ErrInternal)
 }
 
-func (s *Service) Credit(ctx context.Context, req models.CreditRequest) (*models.CreditResult, error) {
+func (s *Service) Credit(_ context.Context, _ models.CreditRequest) (*models.CreditResult, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("Credit: %w", models.ErrInternal)
 }

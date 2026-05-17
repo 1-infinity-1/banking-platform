@@ -49,13 +49,13 @@ type Transaction struct {
 
 // TransactionEvent is the Kafka payload published on transaction.completed.
 type TransactionEvent struct {
-	TransactionID string
-	FromAccountID *string
-	ToAccountID   string
-	Amount        string // decimal as string
-	Currency      string
-	Status        TransactionStatus
-	OccurredAt    time.Time
+	TransactionID string            `json:"transaction_id"`
+	FromAccountID *string           `json:"from_account_id,omitempty"`
+	ToAccountID   string            `json:"to_account_id"`
+	Amount        string            `json:"amount"`
+	Currency      string            `json:"currency"`
+	Status        TransactionStatus `json:"status"`
+	OccurredAt    time.Time         `json:"occurred_at"`
 }
 
 type TransferRequest struct {

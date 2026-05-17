@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *serverAPI) GetTransaction(_ context.Context, _ *transactionpb.GetTransactionRequest) (*transactionpb.Transaction, error) {
+func (s *serverAPI) GetTransaction(
+	_ context.Context,
+	_ *transactionpb.GetTransactionRequest,
+) (*transactionpb.Transaction, error) {
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

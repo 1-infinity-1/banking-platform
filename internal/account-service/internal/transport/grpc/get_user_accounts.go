@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *serverAPI) GetUserAccounts(_ context.Context, _ *accountpb.GetUserAccountsRequest) (*accountpb.AccountsList, error) {
+func (s *serverAPI) GetUserAccounts(
+	_ context.Context,
+	_ *accountpb.GetUserAccountsRequest,
+) (*accountpb.AccountsList, error) {
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

@@ -5,6 +5,7 @@ import (
 	transactionpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/transaction"
 )
 
+//nolint:unused // scaffold: used when implementing TODO handlers
 func toProtoTransactionStatus(s models.TransactionStatus) transactionpb.TransactionStatus {
 	switch s {
 	case models.TransactionStatusPending:

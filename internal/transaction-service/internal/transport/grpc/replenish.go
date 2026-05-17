@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *serverAPI) Replenish(_ context.Context, _ *transactionpb.ReplenishRequest) (*transactionpb.Transaction, error) {
+func (s *serverAPI) Replenish(
+	_ context.Context,
+	_ *transactionpb.ReplenishRequest,
+) (*transactionpb.Transaction, error) {
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

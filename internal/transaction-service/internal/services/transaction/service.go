@@ -18,7 +18,12 @@ type transactionRepo interface {
 	CreateReplenishTx(ctx context.Context, tx pgx.Tx, req models.ReplenishRequest) (*models.Transaction, error)
 	GetByIDTx(ctx context.Context, tx pgx.Tx, id uuid.UUID) (*models.Transaction, error)
 	GetHistory(ctx context.Context, req models.GetHistoryRequest) ([]*models.Transaction, error)
-	UpdateStatusTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, status models.TransactionStatus) (*models.Transaction, error)
+	UpdateStatusTx(
+		ctx context.Context,
+		tx pgx.Tx,
+		id uuid.UUID,
+		status models.TransactionStatus,
+	) (*models.Transaction, error)
 }
 
 // accountClient wraps the gRPC client to account-service behind a consumer-side interface.
@@ -53,22 +58,22 @@ func NewService(
 	}
 }
 
-func (s *Service) Transfer(ctx context.Context, req models.TransferRequest) (*models.Transaction, error) {
+func (s *Service) Transfer(_ context.Context, _ models.TransferRequest) (*models.Transaction, error) {
 	// TODO: implement (Saga: debit from → credit to → save → publish event)
 	return nil, fmt.Errorf("Transfer: %w", models.ErrInternal)
 }
 
-func (s *Service) Replenish(ctx context.Context, req models.ReplenishRequest) (*models.Transaction, error) {
+func (s *Service) Replenish(_ context.Context, _ models.ReplenishRequest) (*models.Transaction, error) {
 	// TODO: implement (credit to → save → publish event)
 	return nil, fmt.Errorf("Replenish: %w", models.ErrInternal)
 }
 
-func (s *Service) GetHistory(ctx context.Context, req models.GetHistoryRequest) ([]*models.Transaction, error) {
+func (s *Service) GetHistory(_ context.Context, _ models.GetHistoryRequest) ([]*models.Transaction, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("GetHistory: %w", models.ErrInternal)
 }
 
-func (s *Service) GetTransaction(ctx context.Context, id uuid.UUID) (*models.Transaction, error) {
+func (s *Service) GetTransaction(_ context.Context, _ uuid.UUID) (*models.Transaction, error) {
 	// TODO: implement
 	return nil, fmt.Errorf("GetTransaction: %w", models.ErrInternal)
 }
