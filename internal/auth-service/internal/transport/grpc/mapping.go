@@ -3,6 +3,7 @@ package grpc
 import (
 	"github.com/1-infinity-1/banking-platform/internal/auth-service/internal/models"
 	authpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/auth"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func toProtoSessionStatus(s models.SessionStatus) authpb.SessionStatus {
@@ -33,4 +34,14 @@ func toProtoUserStatus(s models.UserStatus) authpb.UserStatus {
 		return authpb.UserStatus_USER_STATUS_UNSPECIFIED
 	}
 	return authpb.UserStatus_USER_STATUS_UNSPECIFIED
+}
+
+func toProtoTokenPair(t models.TokenPair) *authpb.TokenPair {
+	return &authpb.TokenPair{
+		AccessToken:           t.AccessToken,
+		RefreshToken:          t.RefreshToken,
+		TokenType:             t.TypeToken,
+		AccessTokenExpiresAt:  timestamppb.New(t.AccessTokenExpiresAt),
+		RefreshTokenExpiresAt: timestamppb.New(t.RefreshTokenExpiresAt),
+	}
 }
