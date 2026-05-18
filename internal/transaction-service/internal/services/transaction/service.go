@@ -200,7 +200,10 @@ func validateReplenish(req models.ReplenishRequest) error {
 	return nil
 }
 
-func (s *Service) createPendingReplenish(ctx context.Context, req models.ReplenishRequest) (*models.Transaction, error) {
+func (s *Service) createPendingReplenish(
+	ctx context.Context,
+	req models.ReplenishRequest,
+) (*models.Transaction, error) {
 	var pending *models.Transaction
 	err := s.txManager.BeginFunc(ctx, func(tx pgx.Tx) error {
 		var inner error
