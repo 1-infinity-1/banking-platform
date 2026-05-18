@@ -8,12 +8,54 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateAccount implements createAccount operation.
+	//
+	// Creates a new bank account for a user.
+	//
+	// POST /accounts
+	CreateAccount(ctx context.Context, req *CreateAccountRequest) (CreateAccountRes, error)
 	// CreateUser implements createUser operation.
 	//
 	// Creates a new user and assigns initial roles.
 	//
 	// POST /users
 	CreateUser(ctx context.Context, req *CreateUserRequest) (CreateUserRes, error)
+	// GetAccount implements getAccount operation.
+	//
+	// Returns account details by ID.
+	//
+	// GET /accounts/{account_id}
+	GetAccount(ctx context.Context, params GetAccountParams) (GetAccountRes, error)
+	// GetBalance implements getBalance operation.
+	//
+	// Returns current balance of an account.
+	//
+	// GET /accounts/{account_id}/balance
+	GetBalance(ctx context.Context, params GetBalanceParams) (GetBalanceRes, error)
+	// GetStatement implements getStatement operation.
+	//
+	// Returns ledger statement for an account in a given time range.
+	//
+	// GET /accounts/{account_id}/statement
+	GetStatement(ctx context.Context, params GetStatementParams) (GetStatementRes, error)
+	// GetTransaction implements getTransaction operation.
+	//
+	// Returns transaction details by ID.
+	//
+	// GET /transactions/{transaction_id}
+	GetTransaction(ctx context.Context, params GetTransactionParams) (GetTransactionRes, error)
+	// GetTransactionHistory implements getTransactionHistory operation.
+	//
+	// Returns transaction history for an account.
+	//
+	// GET /accounts/{account_id}/transactions
+	GetTransactionHistory(ctx context.Context, params GetTransactionHistoryParams) (GetTransactionHistoryRes, error)
+	// GetUserAccounts implements getUserAccounts operation.
+	//
+	// Returns all accounts belonging to a user.
+	//
+	// GET /users/{user_id}/accounts
+	GetUserAccounts(ctx context.Context, params GetUserAccountsParams) (GetUserAccountsRes, error)
 	// Login implements login operation.
 	//
 	// Authenticates user by login and password.
@@ -38,6 +80,24 @@ type Handler interface {
 	//
 	// POST /auth/refresh
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (RefreshTokenRes, error)
+	// Replenish implements replenish operation.
+	//
+	// Replenishes (credits) an account with the given amount.
+	//
+	// POST /transactions/replenish
+	Replenish(ctx context.Context, req *ReplenishRequest) (ReplenishRes, error)
+	// Transfer implements transfer operation.
+	//
+	// Transfers funds between two accounts.
+	//
+	// POST /transactions/transfer
+	Transfer(ctx context.Context, req *TransferRequest) (TransferRes, error)
+	// UpdateAccountStatus implements updateAccountStatus operation.
+	//
+	// Updates the status of an account.
+	//
+	// PATCH /accounts/{account_id}/status
+	UpdateAccountStatus(ctx context.Context, req *UpdateAccountStatusRequest, params UpdateAccountStatusParams) (UpdateAccountStatusRes, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.
@@ -47,18 +107,20 @@ type Handler interface {
 // Server implements http server based on OpenAPI v3 specification and
 // calls Handler to handle requests.
 type Server struct {
-	h Handler
+	h   Handler
+	sec SecurityHandler
 	baseServer
 }
 
 // NewServer creates new Server.
-func NewServer(h Handler, opts ...ServerOption) (*Server, error) {
+func NewServer(h Handler, sec SecurityHandler, opts ...ServerOption) (*Server, error) {
 	s, err := newServerConfig(opts...).baseServer()
 	if err != nil {
 		return nil, err
 	}
 	return &Server{
 		h:          h,
+		sec:        sec,
 		baseServer: s,
 	}, nil
 }

@@ -13,6 +13,12 @@ tags:
     description: Authentication endpoints
   - name: users
     description: User management endpoints
+  - name: accounts
+    description: Account management endpoints
+  - name: transactions
+    description: Transaction endpoints
+  - name: ledger
+    description: Ledger and statement endpoints
 
 paths:
   /ping:
@@ -133,7 +139,338 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  /users/{user_id}/accounts:
+    get:
+      operationId: getUserAccounts
+      tags: [accounts]
+      summary: Get user accounts
+      description: Returns all accounts belonging to a user.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetUserAccountsResponse"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /accounts:
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Create account
+      description: Creates a new bank account for a user.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountRequest"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /accounts/{account_id}:
+    get:
+      operationId: getAccount
+      tags: [accounts]
+      summary: Get account
+      description: Returns account details by ID.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /accounts/{account_id}/balance:
+    get:
+      operationId: getBalance
+      tags: [accounts]
+      summary: Get account balance
+      description: Returns current balance of an account.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalanceResponse"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /accounts/{account_id}/status:
+    patch:
+      operationId: updateAccountStatus
+      tags: [accounts]
+      summary: Update account status
+      description: Updates the status of an account.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountStatusRequest"
+      responses:
+        "200":
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /accounts/{account_id}/transactions:
+    get:
+      operationId: getTransactionHistory
+      tags: [transactions]
+      summary: Get transaction history
+      description: Returns transaction history for an account.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTransactionHistoryResponse"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /accounts/{account_id}/statement:
+    get:
+      operationId: getStatement
+      tags: [ledger]
+      summary: Get account statement
+      description: Returns ledger statement for an account in a given time range.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Account statement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statement"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /transactions/transfer:
+    post:
+      operationId: transfer
+      tags: [transactions]
+      summary: Transfer funds
+      description: Transfers funds between two accounts.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferRequest"
+      responses:
+        "200":
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /transactions/replenish:
+    post:
+      operationId: replenish
+      tags: [transactions]
+      summary: Replenish account
+      description: Replenishes (credits) an account with the given amount.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReplenishRequest"
+      responses:
+        "200":
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /transactions/{transaction_id}:
+    get:
+      operationId: getTransaction
+      tags: [transactions]
+      summary: Get transaction
+      description: Returns transaction details by ID.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transaction_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        default:
+          $ref: "#/components/responses/Error"
+
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   responses:
     Error:
       description: Unexpected error
@@ -194,6 +531,23 @@ components:
         - active
         - revoked
         - expired
+
+    AccountStatus:
+      type: string
+      enum:
+        - unspecified
+        - active
+        - blocked
+        - closed
+
+    TransactionStatus:
+      type: string
+      enum:
+        - unspecified
+        - pending
+        - completed
+        - failed
+        - cancelled
 
     User:
       type: object
@@ -334,6 +688,159 @@ components:
             type: string
           example: ["accounts.read", "payments.create"]
 
+    Account:
+      type: object
+      required:
+        - id
+        - user_id
+        - currency
+        - balance
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Account UUID
+        user_id:
+          type: string
+          format: uuid
+          description: Owner user UUID
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: USD
+        balance:
+          type: string
+          description: Current balance as decimal string
+          example: "1000.00"
+        status:
+          $ref: "#/components/schemas/AccountStatus"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    BalanceResponse:
+      type: object
+      required:
+        - account_id
+        - amount
+        - currency
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          description: Balance as decimal string
+          example: "1000.00"
+        currency:
+          type: string
+          example: USD
+
+    Transaction:
+      type: object
+      required:
+        - id
+        - to_account_id
+        - amount
+        - currency
+        - status
+        - idempotency_key
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Transaction UUID
+        from_account_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Source account UUID (null for replenishments)
+        to_account_id:
+          type: string
+          format: uuid
+          description: Destination account UUID
+        amount:
+          type: string
+          description: Amount as decimal string
+          example: "100.00"
+        currency:
+          type: string
+          example: USD
+        status:
+          $ref: "#/components/schemas/TransactionStatus"
+        idempotency_key:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LedgerEntry:
+      type: object
+      required:
+        - id
+        - transaction_id
+        - account_id
+        - type
+        - amount
+        - currency
+        - balance_after
+        - occurred_at
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        transaction_id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          description: Entry type (debit or credit)
+        amount:
+          type: string
+          description: Amount as decimal string
+        currency:
+          type: string
+        balance_after:
+          type: string
+          description: Balance after this entry
+        description:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    Statement:
+      type: object
+      required:
+        - account_id
+        - entries
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LedgerEntry"
+
     LoginRequest:
       type: object
       required:
@@ -437,3 +944,92 @@ components:
       properties:
         user:
           $ref: "#/components/schemas/User"
+
+    CreateAccountRequest:
+      type: object
+      required:
+        - user_id
+        - currency
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Owner user UUID
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: USD
+
+    GetUserAccountsResponse:
+      type: object
+      required:
+        - accounts
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Account"
+
+    UpdateAccountStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: "#/components/schemas/AccountStatus"
+
+    TransferRequest:
+      type: object
+      required:
+        - from_account_id
+        - to_account_id
+        - amount
+        - currency
+        - idempotency_key
+      properties:
+        from_account_id:
+          type: string
+          format: uuid
+        to_account_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          description: Amount as decimal string
+          example: "100.00"
+        currency:
+          type: string
+          example: USD
+        idempotency_key:
+          type: string
+
+    ReplenishRequest:
+      type: object
+      required:
+        - to_account_id
+        - amount
+        - currency
+        - idempotency_key
+      properties:
+        to_account_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          description: Amount as decimal string
+          example: "500.00"
+        currency:
+          type: string
+          example: USD
+        idempotency_key:
+          type: string
+
+    GetTransactionHistoryResponse:
+      type: object
+      required:
+        - transactions
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"

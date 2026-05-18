@@ -14,6 +14,7 @@ import (
 type Client struct {
 	conn             *grpc.ClientConn
 	accessManagement authpb.AccessManagementServiceClient
+	authSvc          authpb.AuthServiceClient
 }
 
 func NewClient(host, port string) (*Client, error) {
@@ -28,6 +29,7 @@ func NewClient(host, port string) (*Client, error) {
 	return &Client{
 		conn:             conn,
 		accessManagement: authpb.NewAccessManagementServiceClient(conn),
+		authSvc:          authpb.NewAuthServiceClient(conn),
 	}, nil
 }
 

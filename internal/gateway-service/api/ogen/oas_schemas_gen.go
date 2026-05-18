@@ -14,6 +14,151 @@ func (s *ErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
+// Ref: #/components/schemas/Account
+type Account struct {
+	// Account UUID.
+	ID uuid.UUID `json:"id"`
+	// Owner user UUID.
+	UserID uuid.UUID `json:"user_id"`
+	// ISO 4217 currency code.
+	Currency string `json:"currency"`
+	// Current balance as decimal string.
+	Balance   string        `json:"balance"`
+	Status    AccountStatus `json:"status"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Account) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetUserID returns the value of UserID.
+func (s *Account) GetUserID() uuid.UUID {
+	return s.UserID
+}
+
+// GetCurrency returns the value of Currency.
+func (s *Account) GetCurrency() string {
+	return s.Currency
+}
+
+// GetBalance returns the value of Balance.
+func (s *Account) GetBalance() string {
+	return s.Balance
+}
+
+// GetStatus returns the value of Status.
+func (s *Account) GetStatus() AccountStatus {
+	return s.Status
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Account) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Account) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Account) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *Account) SetUserID(val uuid.UUID) {
+	s.UserID = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *Account) SetCurrency(val string) {
+	s.Currency = val
+}
+
+// SetBalance sets the value of Balance.
+func (s *Account) SetBalance(val string) {
+	s.Balance = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Account) SetStatus(val AccountStatus) {
+	s.Status = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Account) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Account) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+func (*Account) createAccountRes()       {}
+func (*Account) getAccountRes()          {}
+func (*Account) updateAccountStatusRes() {}
+
+// Ref: #/components/schemas/AccountStatus
+type AccountStatus string
+
+const (
+	AccountStatusUnspecified AccountStatus = "unspecified"
+	AccountStatusActive      AccountStatus = "active"
+	AccountStatusBlocked     AccountStatus = "blocked"
+	AccountStatusClosed      AccountStatus = "closed"
+)
+
+// AllValues returns all AccountStatus values.
+func (AccountStatus) AllValues() []AccountStatus {
+	return []AccountStatus{
+		AccountStatusUnspecified,
+		AccountStatusActive,
+		AccountStatusBlocked,
+		AccountStatusClosed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s AccountStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case AccountStatusUnspecified:
+		return []byte(s), nil
+	case AccountStatusActive:
+		return []byte(s), nil
+	case AccountStatusBlocked:
+		return []byte(s), nil
+	case AccountStatusClosed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *AccountStatus) UnmarshalText(data []byte) error {
+	switch AccountStatus(data) {
+	case AccountStatusUnspecified:
+		*s = AccountStatusUnspecified
+		return nil
+	case AccountStatusActive:
+		*s = AccountStatusActive
+		return nil
+	case AccountStatusBlocked:
+		*s = AccountStatusBlocked
+		return nil
+	case AccountStatusClosed:
+		*s = AccountStatusClosed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/AuthContext
 type AuthContext struct {
 	UserID          uuid.UUID `json:"user_id"`
@@ -61,6 +206,107 @@ func (s *AuthContext) SetRoleCodes(val []string) {
 func (s *AuthContext) SetPermissionCodes(val []string) {
 	s.PermissionCodes = val
 }
+
+// Ref: #/components/schemas/BalanceResponse
+type BalanceResponse struct {
+	AccountID uuid.UUID `json:"account_id"`
+	// Balance as decimal string.
+	Amount   string `json:"amount"`
+	Currency string `json:"currency"`
+}
+
+// GetAccountID returns the value of AccountID.
+func (s *BalanceResponse) GetAccountID() uuid.UUID {
+	return s.AccountID
+}
+
+// GetAmount returns the value of Amount.
+func (s *BalanceResponse) GetAmount() string {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *BalanceResponse) GetCurrency() string {
+	return s.Currency
+}
+
+// SetAccountID sets the value of AccountID.
+func (s *BalanceResponse) SetAccountID(val uuid.UUID) {
+	s.AccountID = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *BalanceResponse) SetAmount(val string) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *BalanceResponse) SetCurrency(val string) {
+	s.Currency = val
+}
+
+func (*BalanceResponse) getBalanceRes() {}
+
+type BearerAuth struct {
+	Token string
+	Roles []string
+}
+
+// GetToken returns the value of Token.
+func (s *BearerAuth) GetToken() string {
+	return s.Token
+}
+
+// GetRoles returns the value of Roles.
+func (s *BearerAuth) GetRoles() []string {
+	return s.Roles
+}
+
+// SetToken sets the value of Token.
+func (s *BearerAuth) SetToken(val string) {
+	s.Token = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *BearerAuth) SetRoles(val []string) {
+	s.Roles = val
+}
+
+type CreateAccountBadRequest ErrorStatusCode
+
+func (*CreateAccountBadRequest) createAccountRes() {}
+
+// Ref: #/components/schemas/CreateAccountRequest
+type CreateAccountRequest struct {
+	// Owner user UUID.
+	UserID uuid.UUID `json:"user_id"`
+	// ISO 4217 currency code.
+	Currency string `json:"currency"`
+}
+
+// GetUserID returns the value of UserID.
+func (s *CreateAccountRequest) GetUserID() uuid.UUID {
+	return s.UserID
+}
+
+// GetCurrency returns the value of Currency.
+func (s *CreateAccountRequest) GetCurrency() string {
+	return s.Currency
+}
+
+// SetUserID sets the value of UserID.
+func (s *CreateAccountRequest) SetUserID(val uuid.UUID) {
+	s.UserID = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *CreateAccountRequest) SetCurrency(val string) {
+	s.Currency = val
+}
+
+type CreateAccountUnauthorized ErrorStatusCode
+
+func (*CreateAccountUnauthorized) createAccountRes() {}
 
 type CreateUserBadRequest ErrorStatusCode
 
@@ -244,6 +490,209 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+type GetAccountNotFound ErrorStatusCode
+
+func (*GetAccountNotFound) getAccountRes() {}
+
+type GetAccountUnauthorized ErrorStatusCode
+
+func (*GetAccountUnauthorized) getAccountRes() {}
+
+type GetBalanceNotFound ErrorStatusCode
+
+func (*GetBalanceNotFound) getBalanceRes() {}
+
+type GetBalanceUnauthorized ErrorStatusCode
+
+func (*GetBalanceUnauthorized) getBalanceRes() {}
+
+type GetStatementBadRequest ErrorStatusCode
+
+func (*GetStatementBadRequest) getStatementRes() {}
+
+type GetStatementNotFound ErrorStatusCode
+
+func (*GetStatementNotFound) getStatementRes() {}
+
+type GetStatementUnauthorized ErrorStatusCode
+
+func (*GetStatementUnauthorized) getStatementRes() {}
+
+type GetTransactionHistoryNotFound ErrorStatusCode
+
+func (*GetTransactionHistoryNotFound) getTransactionHistoryRes() {}
+
+// Ref: #/components/schemas/GetTransactionHistoryResponse
+type GetTransactionHistoryResponse struct {
+	Transactions []Transaction `json:"transactions"`
+}
+
+// GetTransactions returns the value of Transactions.
+func (s *GetTransactionHistoryResponse) GetTransactions() []Transaction {
+	return s.Transactions
+}
+
+// SetTransactions sets the value of Transactions.
+func (s *GetTransactionHistoryResponse) SetTransactions(val []Transaction) {
+	s.Transactions = val
+}
+
+func (*GetTransactionHistoryResponse) getTransactionHistoryRes() {}
+
+type GetTransactionHistoryUnauthorized ErrorStatusCode
+
+func (*GetTransactionHistoryUnauthorized) getTransactionHistoryRes() {}
+
+type GetTransactionNotFound ErrorStatusCode
+
+func (*GetTransactionNotFound) getTransactionRes() {}
+
+type GetTransactionUnauthorized ErrorStatusCode
+
+func (*GetTransactionUnauthorized) getTransactionRes() {}
+
+type GetUserAccountsNotFound ErrorStatusCode
+
+func (*GetUserAccountsNotFound) getUserAccountsRes() {}
+
+// Ref: #/components/schemas/GetUserAccountsResponse
+type GetUserAccountsResponse struct {
+	Accounts []Account `json:"accounts"`
+}
+
+// GetAccounts returns the value of Accounts.
+func (s *GetUserAccountsResponse) GetAccounts() []Account {
+	return s.Accounts
+}
+
+// SetAccounts sets the value of Accounts.
+func (s *GetUserAccountsResponse) SetAccounts(val []Account) {
+	s.Accounts = val
+}
+
+func (*GetUserAccountsResponse) getUserAccountsRes() {}
+
+type GetUserAccountsUnauthorized ErrorStatusCode
+
+func (*GetUserAccountsUnauthorized) getUserAccountsRes() {}
+
+// Ref: #/components/schemas/LedgerEntry
+type LedgerEntry struct {
+	ID            uuid.UUID `json:"id"`
+	TransactionID uuid.UUID `json:"transaction_id"`
+	AccountID     uuid.UUID `json:"account_id"`
+	// Entry type (debit or credit).
+	Type string `json:"type"`
+	// Amount as decimal string.
+	Amount   string `json:"amount"`
+	Currency string `json:"currency"`
+	// Balance after this entry.
+	BalanceAfter string    `json:"balance_after"`
+	Description  OptString `json:"description"`
+	OccurredAt   time.Time `json:"occurred_at"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *LedgerEntry) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetTransactionID returns the value of TransactionID.
+func (s *LedgerEntry) GetTransactionID() uuid.UUID {
+	return s.TransactionID
+}
+
+// GetAccountID returns the value of AccountID.
+func (s *LedgerEntry) GetAccountID() uuid.UUID {
+	return s.AccountID
+}
+
+// GetType returns the value of Type.
+func (s *LedgerEntry) GetType() string {
+	return s.Type
+}
+
+// GetAmount returns the value of Amount.
+func (s *LedgerEntry) GetAmount() string {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *LedgerEntry) GetCurrency() string {
+	return s.Currency
+}
+
+// GetBalanceAfter returns the value of BalanceAfter.
+func (s *LedgerEntry) GetBalanceAfter() string {
+	return s.BalanceAfter
+}
+
+// GetDescription returns the value of Description.
+func (s *LedgerEntry) GetDescription() OptString {
+	return s.Description
+}
+
+// GetOccurredAt returns the value of OccurredAt.
+func (s *LedgerEntry) GetOccurredAt() time.Time {
+	return s.OccurredAt
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *LedgerEntry) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *LedgerEntry) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetTransactionID sets the value of TransactionID.
+func (s *LedgerEntry) SetTransactionID(val uuid.UUID) {
+	s.TransactionID = val
+}
+
+// SetAccountID sets the value of AccountID.
+func (s *LedgerEntry) SetAccountID(val uuid.UUID) {
+	s.AccountID = val
+}
+
+// SetType sets the value of Type.
+func (s *LedgerEntry) SetType(val string) {
+	s.Type = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *LedgerEntry) SetAmount(val string) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *LedgerEntry) SetCurrency(val string) {
+	s.Currency = val
+}
+
+// SetBalanceAfter sets the value of BalanceAfter.
+func (s *LedgerEntry) SetBalanceAfter(val string) {
+	s.BalanceAfter = val
+}
+
+// SetDescription sets the value of Description.
+func (s *LedgerEntry) SetDescription(val OptString) {
+	s.Description = val
+}
+
+// SetOccurredAt sets the value of OccurredAt.
+func (s *LedgerEntry) SetOccurredAt(val time.Time) {
+	s.OccurredAt = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *LedgerEntry) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
 type LoginBadRequest ErrorStatusCode
 
 func (*LoginBadRequest) loginRes() {}
@@ -384,6 +833,52 @@ type LogoutUnauthorized ErrorStatusCode
 
 func (*LogoutUnauthorized) logoutRes() {}
 
+// NewOptInt32 returns new OptInt32 with value set to v.
+func NewOptInt32(v int32) OptInt32 {
+	return OptInt32{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt32 is optional int32.
+type OptInt32 struct {
+	Value int32
+	Set   bool
+}
+
+// IsSet returns true if OptInt32 was set.
+func (o OptInt32) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt32) Reset() {
+	var v int32
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt32) SetTo(v int32) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt32) Get() (v int32, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt32) Or(d int32) int32 {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilString returns new OptNilString with value set to v.
 func NewOptNilString(v string) OptNilString {
 	return OptNilString{
@@ -441,6 +936,69 @@ func (o OptNilString) Get() (v string, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptNilString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilUUID returns new OptNilUUID with value set to v.
+func NewOptNilUUID(v uuid.UUID) OptNilUUID {
+	return OptNilUUID{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilUUID is optional nullable uuid.UUID.
+type OptNilUUID struct {
+	Value uuid.UUID
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilUUID was set.
+func (o OptNilUUID) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilUUID) Reset() {
+	var v uuid.UUID
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilUUID) SetTo(v uuid.UUID) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilUUID) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilUUID) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v uuid.UUID
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilUUID) Get() (v uuid.UUID, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -617,6 +1175,67 @@ type RefreshTokenUnauthorized ErrorStatusCode
 
 func (*RefreshTokenUnauthorized) refreshTokenRes() {}
 
+type ReplenishBadRequest ErrorStatusCode
+
+func (*ReplenishBadRequest) replenishRes() {}
+
+type ReplenishNotFound ErrorStatusCode
+
+func (*ReplenishNotFound) replenishRes() {}
+
+// Ref: #/components/schemas/ReplenishRequest
+type ReplenishRequest struct {
+	ToAccountID uuid.UUID `json:"to_account_id"`
+	// Amount as decimal string.
+	Amount         string `json:"amount"`
+	Currency       string `json:"currency"`
+	IdempotencyKey string `json:"idempotency_key"`
+}
+
+// GetToAccountID returns the value of ToAccountID.
+func (s *ReplenishRequest) GetToAccountID() uuid.UUID {
+	return s.ToAccountID
+}
+
+// GetAmount returns the value of Amount.
+func (s *ReplenishRequest) GetAmount() string {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *ReplenishRequest) GetCurrency() string {
+	return s.Currency
+}
+
+// GetIdempotencyKey returns the value of IdempotencyKey.
+func (s *ReplenishRequest) GetIdempotencyKey() string {
+	return s.IdempotencyKey
+}
+
+// SetToAccountID sets the value of ToAccountID.
+func (s *ReplenishRequest) SetToAccountID(val uuid.UUID) {
+	s.ToAccountID = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *ReplenishRequest) SetAmount(val string) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *ReplenishRequest) SetCurrency(val string) {
+	s.Currency = val
+}
+
+// SetIdempotencyKey sets the value of IdempotencyKey.
+func (s *ReplenishRequest) SetIdempotencyKey(val string) {
+	s.IdempotencyKey = val
+}
+
+type ReplenishUnauthorized ErrorStatusCode
+
+func (*ReplenishUnauthorized) replenishRes() {}
+
 // Ref: #/components/schemas/RequestContext
 type RequestContext struct {
 	// Client User-Agent string.
@@ -788,6 +1407,34 @@ func (s *SessionStatus) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/Statement
+type Statement struct {
+	AccountID uuid.UUID     `json:"account_id"`
+	Entries   []LedgerEntry `json:"entries"`
+}
+
+// GetAccountID returns the value of AccountID.
+func (s *Statement) GetAccountID() uuid.UUID {
+	return s.AccountID
+}
+
+// GetEntries returns the value of Entries.
+func (s *Statement) GetEntries() []LedgerEntry {
+	return s.Entries
+}
+
+// SetAccountID sets the value of AccountID.
+func (s *Statement) SetAccountID(val uuid.UUID) {
+	s.AccountID = val
+}
+
+// SetEntries sets the value of Entries.
+func (s *Statement) SetEntries(val []LedgerEntry) {
+	s.Entries = val
+}
+
+func (*Statement) getStatementRes() {}
+
 // Ref: #/components/schemas/TokenPair
 type TokenPair struct {
 	// JWT access token.
@@ -848,6 +1495,279 @@ func (s *TokenPair) SetAccessTokenExpiresAt(val time.Time) {
 func (s *TokenPair) SetRefreshTokenExpiresAt(val time.Time) {
 	s.RefreshTokenExpiresAt = val
 }
+
+// Ref: #/components/schemas/Transaction
+type Transaction struct {
+	// Transaction UUID.
+	ID uuid.UUID `json:"id"`
+	// Source account UUID (null for replenishments).
+	FromAccountID OptNilUUID `json:"from_account_id"`
+	// Destination account UUID.
+	ToAccountID uuid.UUID `json:"to_account_id"`
+	// Amount as decimal string.
+	Amount         string            `json:"amount"`
+	Currency       string            `json:"currency"`
+	Status         TransactionStatus `json:"status"`
+	IdempotencyKey string            `json:"idempotency_key"`
+	CreatedAt      time.Time         `json:"created_at"`
+	UpdatedAt      time.Time         `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Transaction) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetFromAccountID returns the value of FromAccountID.
+func (s *Transaction) GetFromAccountID() OptNilUUID {
+	return s.FromAccountID
+}
+
+// GetToAccountID returns the value of ToAccountID.
+func (s *Transaction) GetToAccountID() uuid.UUID {
+	return s.ToAccountID
+}
+
+// GetAmount returns the value of Amount.
+func (s *Transaction) GetAmount() string {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *Transaction) GetCurrency() string {
+	return s.Currency
+}
+
+// GetStatus returns the value of Status.
+func (s *Transaction) GetStatus() TransactionStatus {
+	return s.Status
+}
+
+// GetIdempotencyKey returns the value of IdempotencyKey.
+func (s *Transaction) GetIdempotencyKey() string {
+	return s.IdempotencyKey
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Transaction) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Transaction) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Transaction) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetFromAccountID sets the value of FromAccountID.
+func (s *Transaction) SetFromAccountID(val OptNilUUID) {
+	s.FromAccountID = val
+}
+
+// SetToAccountID sets the value of ToAccountID.
+func (s *Transaction) SetToAccountID(val uuid.UUID) {
+	s.ToAccountID = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *Transaction) SetAmount(val string) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *Transaction) SetCurrency(val string) {
+	s.Currency = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Transaction) SetStatus(val TransactionStatus) {
+	s.Status = val
+}
+
+// SetIdempotencyKey sets the value of IdempotencyKey.
+func (s *Transaction) SetIdempotencyKey(val string) {
+	s.IdempotencyKey = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Transaction) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Transaction) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+func (*Transaction) getTransactionRes() {}
+func (*Transaction) replenishRes()      {}
+func (*Transaction) transferRes()       {}
+
+// Ref: #/components/schemas/TransactionStatus
+type TransactionStatus string
+
+const (
+	TransactionStatusUnspecified TransactionStatus = "unspecified"
+	TransactionStatusPending     TransactionStatus = "pending"
+	TransactionStatusCompleted   TransactionStatus = "completed"
+	TransactionStatusFailed      TransactionStatus = "failed"
+	TransactionStatusCancelled   TransactionStatus = "cancelled"
+)
+
+// AllValues returns all TransactionStatus values.
+func (TransactionStatus) AllValues() []TransactionStatus {
+	return []TransactionStatus{
+		TransactionStatusUnspecified,
+		TransactionStatusPending,
+		TransactionStatusCompleted,
+		TransactionStatusFailed,
+		TransactionStatusCancelled,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TransactionStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case TransactionStatusUnspecified:
+		return []byte(s), nil
+	case TransactionStatusPending:
+		return []byte(s), nil
+	case TransactionStatusCompleted:
+		return []byte(s), nil
+	case TransactionStatusFailed:
+		return []byte(s), nil
+	case TransactionStatusCancelled:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TransactionStatus) UnmarshalText(data []byte) error {
+	switch TransactionStatus(data) {
+	case TransactionStatusUnspecified:
+		*s = TransactionStatusUnspecified
+		return nil
+	case TransactionStatusPending:
+		*s = TransactionStatusPending
+		return nil
+	case TransactionStatusCompleted:
+		*s = TransactionStatusCompleted
+		return nil
+	case TransactionStatusFailed:
+		*s = TransactionStatusFailed
+		return nil
+	case TransactionStatusCancelled:
+		*s = TransactionStatusCancelled
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type TransferBadRequest ErrorStatusCode
+
+func (*TransferBadRequest) transferRes() {}
+
+type TransferNotFound ErrorStatusCode
+
+func (*TransferNotFound) transferRes() {}
+
+// Ref: #/components/schemas/TransferRequest
+type TransferRequest struct {
+	FromAccountID uuid.UUID `json:"from_account_id"`
+	ToAccountID   uuid.UUID `json:"to_account_id"`
+	// Amount as decimal string.
+	Amount         string `json:"amount"`
+	Currency       string `json:"currency"`
+	IdempotencyKey string `json:"idempotency_key"`
+}
+
+// GetFromAccountID returns the value of FromAccountID.
+func (s *TransferRequest) GetFromAccountID() uuid.UUID {
+	return s.FromAccountID
+}
+
+// GetToAccountID returns the value of ToAccountID.
+func (s *TransferRequest) GetToAccountID() uuid.UUID {
+	return s.ToAccountID
+}
+
+// GetAmount returns the value of Amount.
+func (s *TransferRequest) GetAmount() string {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *TransferRequest) GetCurrency() string {
+	return s.Currency
+}
+
+// GetIdempotencyKey returns the value of IdempotencyKey.
+func (s *TransferRequest) GetIdempotencyKey() string {
+	return s.IdempotencyKey
+}
+
+// SetFromAccountID sets the value of FromAccountID.
+func (s *TransferRequest) SetFromAccountID(val uuid.UUID) {
+	s.FromAccountID = val
+}
+
+// SetToAccountID sets the value of ToAccountID.
+func (s *TransferRequest) SetToAccountID(val uuid.UUID) {
+	s.ToAccountID = val
+}
+
+// SetAmount sets the value of Amount.
+func (s *TransferRequest) SetAmount(val string) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *TransferRequest) SetCurrency(val string) {
+	s.Currency = val
+}
+
+// SetIdempotencyKey sets the value of IdempotencyKey.
+func (s *TransferRequest) SetIdempotencyKey(val string) {
+	s.IdempotencyKey = val
+}
+
+type TransferUnauthorized ErrorStatusCode
+
+func (*TransferUnauthorized) transferRes() {}
+
+type UpdateAccountStatusBadRequest ErrorStatusCode
+
+func (*UpdateAccountStatusBadRequest) updateAccountStatusRes() {}
+
+type UpdateAccountStatusNotFound ErrorStatusCode
+
+func (*UpdateAccountStatusNotFound) updateAccountStatusRes() {}
+
+// Ref: #/components/schemas/UpdateAccountStatusRequest
+type UpdateAccountStatusRequest struct {
+	Status AccountStatus `json:"status"`
+}
+
+// GetStatus returns the value of Status.
+func (s *UpdateAccountStatusRequest) GetStatus() AccountStatus {
+	return s.Status
+}
+
+// SetStatus sets the value of Status.
+func (s *UpdateAccountStatusRequest) SetStatus(val AccountStatus) {
+	s.Status = val
+}
+
+type UpdateAccountStatusUnauthorized ErrorStatusCode
+
+func (*UpdateAccountStatusUnauthorized) updateAccountStatusRes() {}
 
 // Ref: #/components/schemas/User
 type User struct {
