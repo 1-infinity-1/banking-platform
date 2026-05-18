@@ -52,7 +52,6 @@ curl http://localhost:8081/ping
 | [Architecture](docs/architecture.md) | Service topology, internal structure, Explicit Architecture |
 | [C4 Diagrams](docs/c4.md) | C4 Context, Container, Component diagrams (Mermaid) |
 | [Sequence Diagrams](docs/diagrams.md) | Login, Transfer, Refresh Token, Get Statement flows |
-| [Database](docs/database.md) | ER diagrams for all four databases |
 | [Deployment](docs/deployment.md) | Docker Compose stacks, ports, build instructions |
 | [API Reference](docs/api-reference.md) | REST endpoints, gRPC API |
 | [Configuration](docs/configuration.md) | Environment variables for all services |
