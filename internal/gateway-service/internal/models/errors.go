@@ -7,6 +7,42 @@ import (
 
 var ErrInternal = errors.New("internal error")
 
+type ForbiddenError struct {
+	message string
+	cause   error
+}
+
+func NewForbiddenError(message string, cause error) *ForbiddenError {
+	return &ForbiddenError{message: message, cause: cause}
+}
+
+func (e *ForbiddenError) Error() string { return e.message }
+func (e *ForbiddenError) Unwrap() error { return e.cause }
+
+type UnauthorizedError struct {
+	message string
+	cause   error
+}
+
+func NewUnauthorizedError(message string, cause error) *UnauthorizedError {
+	return &UnauthorizedError{message: message, cause: cause}
+}
+
+func (e *UnauthorizedError) Error() string { return e.message }
+func (e *UnauthorizedError) Unwrap() error { return e.cause }
+
+type BusinessError struct {
+	message string
+	cause   error
+}
+
+func NewBusinessError(message string, cause error) *BusinessError {
+	return &BusinessError{message: message, cause: cause}
+}
+
+func (e *BusinessError) Error() string { return e.message }
+func (e *BusinessError) Unwrap() error { return e.cause }
+
 type ConflictError struct {
 	message string
 	cause   error
