@@ -6,6 +6,7 @@ import (
 
 	"github.com/1-infinity-1/banking-platform/internal/transaction-service/internal/models"
 	accountpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/account"
+	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
 )
 
@@ -27,10 +28,15 @@ func (c *Client) Debit(ctx context.Context, req models.DebitRequest) (*models.De
 		return nil, fmt.Errorf("conn.Debit: %w", err)
 	}
 
-	// TODO: parse resp.BalanceAfter via decimal.NewFromString
-	_ = resp
+	balanceAfter, err := decimal.NewFromString(resp.GetBalanceAfter())
+	if err != nil {
+		return nil, fmt.Errorf("decimal.NewFromString(balance_after=%q): %w", resp.GetBalanceAfter(), err)
+	}
 
-	return &models.DebitResult{}, nil
+	return &models.DebitResult{
+		AccountID:    resp.GetAccountId(),
+		BalanceAfter: balanceAfter,
+	}, nil
 }
 
 func (c *Client) Credit(ctx context.Context, req models.CreditRequest) (*models.CreditResult, error) {
@@ -43,8 +49,13 @@ func (c *Client) Credit(ctx context.Context, req models.CreditRequest) (*models.
 		return nil, fmt.Errorf("conn.Credit: %w", err)
 	}
 
-	// TODO: parse resp.BalanceAfter via decimal.NewFromString
-	_ = resp
+	balanceAfter, err := decimal.NewFromString(resp.GetBalanceAfter())
+	if err != nil {
+		return nil, fmt.Errorf("decimal.NewFromString(balance_after=%q): %w", resp.GetBalanceAfter(), err)
+	}
 
-	return &models.CreditResult{}, nil
+	return &models.CreditResult{
+		AccountID:    resp.GetAccountId(),
+		BalanceAfter: balanceAfter,
+	}, nil
 }
