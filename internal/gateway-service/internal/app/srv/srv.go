@@ -23,8 +23,8 @@ type App struct {
 	port       string
 }
 
-func NewApp(hnd api.Handler, log *slog.Logger, port string) (*App, error) {
-	srv, err := api.NewServer(hnd, api.WithMiddleware(httpmw.Trace(), httpmw.Logging(log)))
+func NewApp(hnd api.Handler, sec api.SecurityHandler, log *slog.Logger, port string) (*App, error) {
+	srv, err := api.NewServer(hnd, sec, api.WithMiddleware(httpmw.Trace(), httpmw.Logging(log)))
 	if err != nil {
 		return nil, fmt.Errorf("api.NewServer: %w", err)
 	}
