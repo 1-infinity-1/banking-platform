@@ -13,12 +13,75 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateAccount implements createAccount operation.
+//
+// Creates a new bank account for a user.
+//
+// POST /accounts
+func (UnimplementedHandler) CreateAccount(ctx context.Context, req *CreateAccountRequest) (r CreateAccountRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateUser implements createUser operation.
 //
 // Creates a new user and assigns initial roles.
 //
 // POST /users
 func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserRequest) (r CreateUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetAccount implements getAccount operation.
+//
+// Returns account details by ID.
+//
+// GET /accounts/{account_id}
+func (UnimplementedHandler) GetAccount(ctx context.Context, params GetAccountParams) (r GetAccountRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetBalance implements getBalance operation.
+//
+// Returns current balance of an account.
+//
+// GET /accounts/{account_id}/balance
+func (UnimplementedHandler) GetBalance(ctx context.Context, params GetBalanceParams) (r GetBalanceRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetStatement implements getStatement operation.
+//
+// Returns ledger statement for an account in a given time range.
+//
+// GET /accounts/{account_id}/statement
+func (UnimplementedHandler) GetStatement(ctx context.Context, params GetStatementParams) (r GetStatementRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetTransaction implements getTransaction operation.
+//
+// Returns transaction details by ID.
+//
+// GET /transactions/{transaction_id}
+func (UnimplementedHandler) GetTransaction(ctx context.Context, params GetTransactionParams) (r GetTransactionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetTransactionHistory implements getTransactionHistory operation.
+//
+// Returns transaction history for an account.
+//
+// GET /accounts/{account_id}/transactions
+func (UnimplementedHandler) GetTransactionHistory(ctx context.Context, params GetTransactionHistoryParams) (r GetTransactionHistoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetUserAccounts implements getUserAccounts operation.
+//
+// Returns all accounts belonging to a user.
+//
+// GET /users/{user_id}/accounts
+func (UnimplementedHandler) GetUserAccounts(ctx context.Context, params GetUserAccountsParams) (r GetUserAccountsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -55,6 +118,33 @@ func (UnimplementedHandler) Ping(ctx context.Context) (r *PingResponse, _ error)
 //
 // POST /auth/refresh
 func (UnimplementedHandler) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (r RefreshTokenRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Replenish implements replenish operation.
+//
+// Replenishes (credits) an account with the given amount.
+//
+// POST /transactions/replenish
+func (UnimplementedHandler) Replenish(ctx context.Context, req *ReplenishRequest) (r ReplenishRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Transfer implements transfer operation.
+//
+// Transfers funds between two accounts.
+//
+// POST /transactions/transfer
+func (UnimplementedHandler) Transfer(ctx context.Context, req *TransferRequest) (r TransferRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateAccountStatus implements updateAccountStatus operation.
+//
+// Updates the status of an account.
+//
+// PATCH /accounts/{account_id}/status
+func (UnimplementedHandler) UpdateAccountStatus(ctx context.Context, req *UpdateAccountStatusRequest, params UpdateAccountStatusParams) (r UpdateAccountStatusRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

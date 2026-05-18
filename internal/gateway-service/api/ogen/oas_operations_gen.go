@@ -6,9 +6,19 @@ package api
 type OperationName = string
 
 const (
-	CreateUserOperation   OperationName = "CreateUser"
-	LoginOperation        OperationName = "Login"
-	LogoutOperation       OperationName = "Logout"
-	PingOperation         OperationName = "Ping"
-	RefreshTokenOperation OperationName = "RefreshToken"
+	CreateAccountOperation         OperationName = "CreateAccount"
+	CreateUserOperation            OperationName = "CreateUser"
+	GetAccountOperation            OperationName = "GetAccount"
+	GetBalanceOperation            OperationName = "GetBalance"
+	GetStatementOperation          OperationName = "GetStatement"
+	GetTransactionOperation        OperationName = "GetTransaction"
+	GetTransactionHistoryOperation OperationName = "GetTransactionHistory"
+	GetUserAccountsOperation       OperationName = "GetUserAccounts"
+	LoginOperation                 OperationName = "Login"
+	LogoutOperation                OperationName = "Logout"
+	PingOperation                  OperationName = "Ping"
+	RefreshTokenOperation          OperationName = "RefreshToken"
+	ReplenishOperation             OperationName = "Replenish"
+	TransferOperation              OperationName = "Transfer"
+	UpdateAccountStatusOperation   OperationName = "UpdateAccountStatus"
 )
