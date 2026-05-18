@@ -191,10 +191,7 @@ func (r *Repository) GetHistory(ctx context.Context, req models.GetHistoryReques
 	if limit > maxHistoryLimit {
 		limit = maxHistoryLimit
 	}
-	offset := req.Offset
-	if offset < 0 {
-		offset = 0
-	}
+	offset := max(req.Offset, 0)
 
 	query := `
 		SELECT ` + transactionColumns + `
@@ -228,7 +225,8 @@ func (r *Repository) GetHistory(ctx context.Context, req models.GetHistoryReques
 			return nil, fmt.Errorf("rows.Scan: %w", err)
 		}
 
-		domain, err := dto.ToDomain()
+		var domain *models.Transaction
+		domain, err = dto.ToDomain()
 		if err != nil {
 			return nil, fmt.Errorf("dto.ToDomain: %w", err)
 		}
