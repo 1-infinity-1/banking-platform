@@ -20,50 +20,52 @@ Access token выдаётся при успешном `POST /auth/login`.
 
 ### Эндпоинты
 
+> **Поток** — ссылка на sequence-диаграмму в [`diagrams.md`](diagrams.md). Все 15 endpoints имеют диаграмму потока.
+
 #### Health
 
-| Метод | Путь | Описание | Статус |
-|-------|------|----------|--------|
-| `GET` | `/ping` | Health check | Реализован |
+| Метод | Путь | Описание | Статус | Поток |
+|-------|------|----------|--------|-------|
+| `GET` | `/ping` | Health check | Реализован | [→](diagrams.md#get-ping) |
 
 #### Auth
 
-| Метод | Путь | Описание | Статус |
-|-------|------|----------|--------|
-| `POST` | `/auth/login` | Аутентификация по логину и паролю | Реализован |
-| `POST` | `/auth/logout` | Отзыв refresh token и закрытие сессии | Реализован |
-| `POST` | `/auth/refresh` | Ротация токенов | Реализован |
+| Метод | Путь | Описание | Статус | Поток |
+|-------|------|----------|--------|-------|
+| `POST` | `/auth/login` | Аутентификация по логину и паролю | Реализован | [→](diagrams.md#post-authlogin) |
+| `POST` | `/auth/logout` | Отзыв refresh token и закрытие сессии | Реализован | [→](diagrams.md#post-authlogout) |
+| `POST` | `/auth/refresh` | Ротация токенов | Реализован | [→](diagrams.md#post-authrefresh) |
 
 #### Users
 
-| Метод | Путь | Описание | Статус |
-|-------|------|----------|--------|
-| `POST` | `/users` | Создание пользователя | Реализован |
+| Метод | Путь | Описание | Статус | Поток |
+|-------|------|----------|--------|-------|
+| `POST` | `/users` | Создание пользователя | Реализован | [→](diagrams.md#post-users) |
 
 #### Accounts
 
-| Метод | Путь | Описание | Статус |
-|-------|------|----------|--------|
-| `GET` | `/users/{user_id}/accounts` | Счета пользователя | Скелет |
-| `POST` | `/accounts` | Открыть счёт | Скелет |
-| `GET` | `/accounts/{account_id}` | Получить счёт | Скелет |
-| `GET` | `/accounts/{account_id}/balance` | Баланс счёта | Скелет |
-| `PATCH` | `/accounts/{account_id}/status` | Изменить статус счёта | Скелет |
+| Метод | Путь | Описание | Статус | Поток |
+|-------|------|----------|--------|-------|
+| `GET` | `/users/{user_id}/accounts` | Счета пользователя | Скелет | [→](diagrams.md#get-usersuser_idaccounts) |
+| `POST` | `/accounts` | Открыть счёт | Скелет | [→](diagrams.md#post-accounts) |
+| `GET` | `/accounts/{account_id}` | Получить счёт | Скелет | [→](diagrams.md#get-accountsaccount_id) |
+| `GET` | `/accounts/{account_id}/balance` | Баланс счёта | Скелет | [→](diagrams.md#get-accountsaccount_idbalance) |
+| `PATCH` | `/accounts/{account_id}/status` | Изменить статус счёта | Скелет | [→](diagrams.md#patch-accountsaccount_idstatus) |
 
 #### Transactions
 
-| Метод | Путь | Описание | Статус |
-|-------|------|----------|--------|
-| `POST` | `/transactions/transfer` | Перевод между счетами | Скелет |
-| `POST` | `/transactions/replenish` | Пополнение счёта | Скелет |
-| `GET` | `/transactions/{transaction_id}` | Получить транзакцию | Скелет |
-| `GET` | `/accounts/{account_id}/transactions` | История транзакций | Скелет |
+| Метод | Путь | Описание | Статус | Поток |
+|-------|------|----------|--------|-------|
+| `POST` | `/transactions/transfer` | Перевод между счетами | Скелет | [→](diagrams.md#post-transactionstransfer) |
+| `POST` | `/transactions/replenish` | Пополнение счёта | Скелет | [→](diagrams.md#post-transactionsreplenish) |
+| `GET` | `/transactions/{transaction_id}` | Получить транзакцию | Скелет | [→](diagrams.md#get-transactionstransaction_id) |
+| `GET` | `/accounts/{account_id}/transactions` | История транзакций | Скелет | [→](diagrams.md#get-accountsaccount_idtransactions) |
 
 #### Ledger
 
-| Метод | Путь | Описание | Статус |
-|-------|------|----------|--------|
-| `GET` | `/accounts/{account_id}/statement` | Выписка по счёту | Реализован |
+| Метод | Путь | Описание | Статус | Поток |
+|-------|------|----------|--------|-------|
+| `GET` | `/accounts/{account_id}/statement` | Выписка по счёту | Реализован | [→](diagrams.md#get-accountsaccount_idstatement) |
 
 ### Примеры запросов
 
@@ -192,6 +194,8 @@ message AuthContext {
 
 ## See Also
 
+- [Sequence Diagrams](diagrams.md) — sequence-диаграммы по всем 15 endpoints (колонка «Поток» в таблицах выше)
+- [C4 Диаграммы](c4.md) — статическая топология и компонентный разрез сервисов
 - [Архитектура](architecture.md) — топология сервисов и паттерны
 - [Конфигурация](configuration.md) — порты и переменные окружения
 - [Начало работы](getting-started.md) — запуск и проверка
