@@ -2,81 +2,57 @@
 
 > [English](README.md) · [Русский](README.ru.md)
 
-Banking Platform is a backend project in Go implemented as a microservice monorepo.  
-The project models a basic banking platform with a single entry point for client applications, a user and authentication service, an account service, a transaction service, and a ledger service.
+Go microservice monorepo modelling a banking platform. External clients talk to `gateway-service` over REST; internal services communicate over gRPC; async integration via Kafka (planned).
 
 Project goals:
 - design and implement a microservice architecture in Go;
-- define service-to-service contracts;
-- design data schemas and business flows;
-- demonstrate clear responsibility boundaries between services;
+- define service-to-service contracts (gRPC + OpenAPI);
 - practice REST, gRPC, Kafka, idempotency, and audit log patterns.
 
 ---
 
-# Services
+## Quick Start
 
-## `gateway-service`
-Single REST/BFF entry point for web and mobile clients. Routes requests to internal services, aggregates data, and provides the external API boundary of the system.
+**Prerequisites:** Go 1.25.4+, Docker, Make.
 
-## `auth-service`
-Manages users, authentication, sessions, roles, and permissions. Issues and validates tokens and provides user data to other services.
+```bash
+# 1. Start auth-service (Postgres + migrations + gRPC server on :8082)
+cd internal/auth-service && make up
 
-## `account-service`
-Responsible for bank accounts, their statuses, and current balances. Acts as the source of truth for monetary balances.
-
-## `transaction-service`
-Orchestrates money operations such as transfers and replenishments. Coordinates debit/credit flows, stores transaction statuses, and publishes completed transaction events.
-
-## `ledger-service`
-Maintains accounting and audit records of operations. Asynchronously consumes transaction events and builds account statements.
-
----
-
-# Architecture
-
-The system is built around the following principles:
-- client applications communicate only with `gateway-service` over REST;
-- internal synchronous service-to-service communication uses gRPC;
-- asynchronous integration uses Kafka;
-- `account-service` stores current balances;
-- `ledger-service` stores immutable ledger history;
-- `transaction-service` manages money operation workflows;
-- `auth-service` owns authentication and user access context.
-
----
-
-# Service Interaction
-
-| From | To | Transport | Purpose |
-|---|---|---|---|
-| Client Apps | Gateway Service | REST | External API |
-| Gateway Service | Auth Service | gRPC | Auth and user data |
-| Gateway Service | Account Service | gRPC | Accounts and balances |
-| Gateway Service | Transaction Service | gRPC | Transfers and history |
-| Gateway Service | Ledger Service | gRPC | Statements |
-| Transaction Service | Account Service | gRPC | Debit / credit |
-| Transaction Service | Kafka | Kafka | Publish completed transaction events |
-| Kafka | Ledger Service | Kafka | Consume transaction events |
-
----
-
-# Repository Structure
-
-```text
-.
-├── internal/
-│   ├── auth-service/
-│   ├── gateway-service/
-│   ├── account-service/
-│   ├── transaction-service/
-│   └── ledger-service/
-├── pkg/
-│   ├── config/
-│   ├── logger/
-│   └── proto/
-│       ├── auth/
-│       └── generated/
-├── go.mod
-└── Makefile
+# 2. Start gateway-service (HTTP server on :8081)
+cd internal/gateway-service && make up
 ```
+
+Health check:
+
+```bash
+curl http://localhost:8081/ping
+# {"message":"pong"}
+```
+
+---
+
+## Services
+
+| Service | Port | Transport | Status |
+|---------|------|-----------|--------|
+| `gateway-service` | `:8081` | REST (ogen/OpenAPI) | Implemented |
+| `auth-service` | `:8082` | gRPC | Implemented |
+| `account-service` | `:8083` | gRPC | Skeleton |
+| `transaction-service` | `:8084` | gRPC | Skeleton |
+| `ledger-service` | `:8085` | gRPC + Kafka consumer | Implemented |
+
+---
+
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](docs/getting-started.md) | Prerequisites, running locally, Docker |
+| [Architecture](docs/architecture.md) | Service topology, internal structure, Explicit Architecture |
+| [C4 Diagrams](docs/c4.md) | C4 Context, Container, Component diagrams (Mermaid) |
+| [Sequence Diagrams](docs/diagrams.md) | Login, Transfer, Refresh Token, Get Statement flows |
+| [Database](docs/database.md) | ER diagrams for all four databases |
+| [Deployment](docs/deployment.md) | Docker Compose stacks, ports, build instructions |
+| [API Reference](docs/api-reference.md) | REST endpoints, gRPC API |
+| [Configuration](docs/configuration.md) | Environment variables for all services |

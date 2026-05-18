@@ -7,7 +7,7 @@ services:
       dockerfile: internal/ledger-service/Dockerfile
     command: ["grpc"]
     ports:
-      - "8083:8083"
+      - "8085:8085"
     env_file:
       - docker.env
     depends_on:

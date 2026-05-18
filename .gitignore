@@ -37,7 +37,8 @@ go.work.sum
 
 .idea/
 .claude/
-*.md
 /.ai-factory/
 /.mcp.json
 /.ai-factory.json
+/AGENTS.md
+/CLAUDE.md
