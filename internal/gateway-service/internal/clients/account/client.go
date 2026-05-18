@@ -1,10 +1,10 @@
-package auth
+package account
 
 import (
 	"context"
 	"fmt"
 
-	authpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/auth"
+	accountpb "github.com/1-infinity-1/banking-platform/pkg/proto/generated/go/account"
 	"github.com/1-infinity-1/banking-platform/pkg/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -12,9 +12,8 @@ import (
 )
 
 type Client struct {
-	conn             *grpc.ClientConn
-	accessManagement authpb.AccessManagementServiceClient
-	authSvc          authpb.AuthServiceClient
+	conn *grpc.ClientConn
+	svc  accountpb.AccountServiceClient
 }
 
 func NewClient(host, port string) (*Client, error) {
@@ -27,9 +26,8 @@ func NewClient(host, port string) (*Client, error) {
 		return nil, fmt.Errorf("grpc.NewClient: %w", err)
 	}
 	return &Client{
-		conn:             conn,
-		accessManagement: authpb.NewAccessManagementServiceClient(conn),
-		authSvc:          authpb.NewAuthServiceClient(conn),
+		conn: conn,
+		svc:  accountpb.NewAccountServiceClient(conn),
 	}, nil
 }
 
