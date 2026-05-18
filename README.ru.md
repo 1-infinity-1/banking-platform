@@ -52,7 +52,6 @@ curl http://localhost:8081/ping
 | [Архитектура](docs/architecture.md) | Топология сервисов, внутренняя структура, Explicit Architecture |
 | [C4 Диаграммы](docs/c4.md) | C4 Context, Container, Component диаграммы (Mermaid) |
 | [Sequence Diagrams](docs/diagrams.md) | Потоки: Login, Transfer, Refresh Token, Get Statement |
-| [База данных](docs/database.md) | ER-диаграммы всех четырёх баз данных |
 | [Развёртывание](docs/deployment.md) | Docker Compose стеки, порты, сборка |
 | [API Reference](docs/api-reference.md) | REST-эндпоинты, gRPC API |
 | [Конфигурация](docs/configuration.md) | Переменные окружения всех сервисов |

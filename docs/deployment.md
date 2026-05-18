@@ -1,4 +1,4 @@
-[← База данных](database.md) · [Back to README](../README.md) · [API Reference →](api-reference.md)
+[Back to README](../README.md) · [API Reference →](api-reference.md)
 
 # Развёртывание
 

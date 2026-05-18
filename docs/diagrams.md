@@ -1,4 +1,4 @@
-[← C4 Диаграммы](c4.md) · [Back to README](../README.md) · [База данных →](database.md)
+[← C4 Диаграммы](c4.md) · [Back to README](../README.md)
 
 # Sequence Diagrams
 
@@ -602,5 +602,4 @@ sequenceDiagram
 ## See Also
 
 - [C4 Диаграммы](c4.md) — статическая топология: Context, Container, Component
-- [База данных](database.md) — ER-схемы всех четырёх баз данных
 - [API Reference](api-reference.md) — HTTP и gRPC контракты
