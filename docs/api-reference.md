@@ -46,20 +46,20 @@ Access token выдаётся при успешном `POST /auth/login`.
 
 | Метод | Путь | Описание | Статус | Поток |
 |-------|------|----------|--------|-------|
-| `GET` | `/users/{user_id}/accounts` | Счета пользователя | Скелет | [→](diagrams.md#get-usersuser_idaccounts) |
-| `POST` | `/accounts` | Открыть счёт | Скелет | [→](diagrams.md#post-accounts) |
-| `GET` | `/accounts/{account_id}` | Получить счёт | Скелет | [→](diagrams.md#get-accountsaccount_id) |
-| `GET` | `/accounts/{account_id}/balance` | Баланс счёта | Скелет | [→](diagrams.md#get-accountsaccount_idbalance) |
-| `PATCH` | `/accounts/{account_id}/status` | Изменить статус счёта | Скелет | [→](diagrams.md#patch-accountsaccount_idstatus) |
+| `GET` | `/users/{user_id}/accounts` | Счета пользователя | Реализован | [→](diagrams.md#get-usersuser_idaccounts) |
+| `POST` | `/accounts` | Открыть счёт | Реализован | [→](diagrams.md#post-accounts) |
+| `GET` | `/accounts/{account_id}` | Получить счёт | Реализован | [→](diagrams.md#get-accountsaccount_id) |
+| `GET` | `/accounts/{account_id}/balance` | Баланс счёта | Реализован | [→](diagrams.md#get-accountsaccount_idbalance) |
+| `PATCH` | `/accounts/{account_id}/status` | Изменить статус счёта | Реализован | [→](diagrams.md#patch-accountsaccount_idstatus) |
 
 #### Transactions
 
 | Метод | Путь | Описание | Статус | Поток |
 |-------|------|----------|--------|-------|
-| `POST` | `/transactions/transfer` | Перевод между счетами | Скелет | [→](diagrams.md#post-transactionstransfer) |
-| `POST` | `/transactions/replenish` | Пополнение счёта | Скелет | [→](diagrams.md#post-transactionsreplenish) |
-| `GET` | `/transactions/{transaction_id}` | Получить транзакцию | Скелет | [→](diagrams.md#get-transactionstransaction_id) |
-| `GET` | `/accounts/{account_id}/transactions` | История транзакций | Скелет | [→](diagrams.md#get-accountsaccount_idtransactions) |
+| `POST` | `/transactions/transfer` | Перевод между счетами | Реализован | [→](diagrams.md#post-transactionstransfer) |
+| `POST` | `/transactions/replenish` | Пополнение счёта | Реализован | [→](diagrams.md#post-transactionsreplenish) |
+| `GET` | `/transactions/{transaction_id}` | Получить транзакцию | Реализован | [→](diagrams.md#get-transactionstransaction_id) |
+| `GET` | `/accounts/{account_id}/transactions` | История транзакций | Реализован | [→](diagrams.md#get-accountsaccount_idtransactions) |
 
 #### Ledger
 
@@ -177,6 +177,63 @@ message AuthContext {
 | `ALREADY_EXISTS` | Конфликт (например, логин уже занят) |
 | `INVALID_ARGUMENT` | Невалидный запрос |
 | `UNAUTHENTICATED` | Неверный или просроченный токен |
+| `INTERNAL` | Внутренняя ошибка сервера |
+
+---
+
+## gRPC API (account-service)
+
+**Адрес:** `localhost:8083`
+**Proto-файл:** [`pkg/proto/account/account.proto`](../pkg/proto/account/account.proto)
+**Package:** `account.v1`
+
+### AccountService
+
+| RPC | Запрос | Ответ | Описание |
+|-----|--------|-------|----------|
+| `CreateAccount` | `user_id`, `currency` | `Account` | Открыть новый счёт |
+| `GetUserAccounts` | `user_id` | `AccountsList` | Все счета пользователя |
+| `GetAccount` | `account_id` | `Account` | Данные одного счёта |
+| `GetBalance` | `account_id` | `Balance` | Текущий баланс |
+| `UpdateStatus` | `account_id`, `status` | `UpdateStatusResponse` | Изменить статус счёта (active / blocked / closed) |
+| `Debit` | `account_id`, `amount`, `idempotency_key` | `DebitResponse` (balance_after) | Идемпотентное списание |
+| `Credit` | `account_id`, `amount`, `idempotency_key` | `CreditResponse` (balance_after) | Идемпотентное зачисление |
+
+### Коды ошибок gRPC (account-service)
+
+| gRPC Status | Причина |
+|-------------|---------|
+| `NOT_FOUND` | Счёт не найден |
+| `ALREADY_EXISTS` | Конфликт (duplicate idempotency_key) |
+| `INVALID_ARGUMENT` | Невалидный запрос |
+| `FAILED_PRECONDITION` | Счёт неактивен, недостаточно средств |
+| `INTERNAL` | Внутренняя ошибка сервера |
+
+---
+
+## gRPC API (transaction-service)
+
+**Адрес:** `localhost:8084`
+**Proto-файл:** [`pkg/proto/transaction/transaction.proto`](../pkg/proto/transaction/transaction.proto)
+**Package:** `transaction.v1`
+
+### TransactionService
+
+| RPC | Запрос | Ответ | Описание |
+|-----|--------|-------|----------|
+| `Transfer` | `from_account_id`, `to_account_id`, `amount`, `currency`, `idempotency_key` | `Transaction` | Перевод между счетами через Pending → Completed saga |
+| `Replenish` | `to_account_id`, `amount`, `currency`, `idempotency_key` | `Transaction` | Пополнение счёта через Pending → Completed saga |
+| `GetHistory` | `account_id`, `limit`, `offset` | `TransactionsList` | История операций по счёту (DESC by created_at) |
+| `GetTransaction` | `transaction_id` | `Transaction` | Данные одной транзакции |
+
+### Коды ошибок gRPC (transaction-service)
+
+| gRPC Status | Причина |
+|-------------|---------|
+| `NOT_FOUND` | Транзакция не найдена |
+| `ALREADY_EXISTS` | Конфликт (duplicate idempotency_key при статусе failed) |
+| `INVALID_ARGUMENT` | Невалидный запрос |
+| `FAILED_PRECONDITION` | Бизнес-ошибка (недостаточно средств, неактивный счёт) |
 | `INTERNAL` | Внутренняя ошибка сервера |
 
 ---

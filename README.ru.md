@@ -11,6 +11,19 @@ Go-монорепозиторий, моделирующий банковскую
 
 ---
 
+## О проекте
+
+Часть сервисов спроектирована и реализована самостоятельно — чтобы выработать единую конвенцию для монорепозитория:
+
+- **Project Layout** — структура директорий по [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
+- **Uber Go Style Guide** — соглашения по стилю кода по [Uber Go Guide](https://github.com/uber-go/guide)
+- **Clean Architecture** — слои и направление зависимостей внутри сервиса по [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- **Golangci-lint Golden Config** — строгая конфигурация линтера на базе [Golden Config](https://github.com/maratori/golangci-lint-config)
+
+Получив устойчивую конвенцию и настроенную AI-платформу ([Claude Code](https://claude.ai/code) + [AI Factory](https://github.com/lee-to/ai-factory)), дальнейшая разработка ведётся с поддержкой AI без потери качества.
+
+---
+
 ## Быстрый старт
 
 **Требования:** Go 1.25.4+, Docker, Make.
@@ -38,8 +51,8 @@ curl http://localhost:8081/ping
 |--------|------|-----------|--------|
 | `gateway-service` | `:8081` | REST (ogen/OpenAPI) | Реализован |
 | `auth-service` | `:8082` | gRPC | Реализован |
-| `account-service` | `:8083` | gRPC | Скелет |
-| `transaction-service` | `:8084` | gRPC | Скелет |
+| `account-service` | `:8083` | gRPC | Реализован |
+| `transaction-service` | `:8084` | gRPC | Реализован |
 | `ledger-service` | `:8085` | gRPC + Kafka consumer | Реализован |
 
 ---
