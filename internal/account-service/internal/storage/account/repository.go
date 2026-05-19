@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -161,12 +162,162 @@ func (r *Repository) UpdateStatusTx(
 	return dto.ToDomain()
 }
 
-func (r *Repository) DebitTx(_ context.Context, _ pgx.Tx, _ models.DebitRequest) (*models.DebitResult, error) {
-	// TODO: implement (use idempotency_key unique constraint)
-	return nil, fmt.Errorf("DebitTx: %w", models.ErrInternal)
+func (r *Repository) DebitTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	req models.DebitRequest,
+) (*models.DebitResult, error) {
+	var opID int64
+	err := tx.QueryRow(ctx, `
+		INSERT INTO account_operations (account_id, op_type, amount, idempotency_key)
+		VALUES ($1, 'debit', $2, $3)
+		RETURNING id
+	`, req.AccountID, req.Amount, req.IdempotencyKey).Scan(&opID)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgUniqueViolation {
+			accountID, balanceAfter, lookupErr := r.getOperationByKeyTx(ctx, tx, req.IdempotencyKey)
+			if lookupErr != nil {
+				return nil, fmt.Errorf("r.getOperationByKeyTx: %w", lookupErr)
+			}
+			return &models.DebitResult{
+				AccountID:    accountID,
+				BalanceAfter: balanceAfter,
+			}, nil
+		}
+		return nil, fmt.Errorf("tx.QueryRow(insert account_operation): %w", err)
+	}
+
+	var newBalance decimal.Decimal
+	err = tx.QueryRow(ctx, `
+		UPDATE accounts
+		SET balance = balance - $1, updated_at = NOW()
+		WHERE public_id = $2 AND balance >= $1 AND status = 'active'
+		RETURNING balance
+	`, req.Amount, req.AccountID).Scan(&newBalance)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, r.classifyDebitFailure(ctx, tx, req.AccountID, req.Amount)
+		}
+		return nil, fmt.Errorf("tx.QueryRow(update accounts debit): %w", err)
+	}
+
+	if _, err = tx.Exec(ctx, `
+		UPDATE account_operations SET balance_after = $1 WHERE id = $2
+	`, newBalance, opID); err != nil {
+		return nil, fmt.Errorf("tx.Exec(update account_operation balance_after): %w", err)
+	}
+
+	return &models.DebitResult{
+		AccountID:    req.AccountID.String(),
+		BalanceAfter: newBalance,
+	}, nil
 }
 
-func (r *Repository) CreditTx(_ context.Context, _ pgx.Tx, _ models.CreditRequest) (*models.CreditResult, error) {
-	// TODO: implement (use idempotency_key unique constraint)
-	return nil, fmt.Errorf("CreditTx: %w", models.ErrInternal)
+func (r *Repository) CreditTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	req models.CreditRequest,
+) (*models.CreditResult, error) {
+	var opID int64
+	err := tx.QueryRow(ctx, `
+		INSERT INTO account_operations (account_id, op_type, amount, idempotency_key)
+		VALUES ($1, 'credit', $2, $3)
+		RETURNING id
+	`, req.AccountID, req.Amount, req.IdempotencyKey).Scan(&opID)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgUniqueViolation {
+			accountID, balanceAfter, lookupErr := r.getOperationByKeyTx(ctx, tx, req.IdempotencyKey)
+			if lookupErr != nil {
+				return nil, fmt.Errorf("r.getOperationByKeyTx: %w", lookupErr)
+			}
+			return &models.CreditResult{
+				AccountID:    accountID,
+				BalanceAfter: balanceAfter,
+			}, nil
+		}
+		return nil, fmt.Errorf("tx.QueryRow(insert account_operation): %w", err)
+	}
+
+	var newBalance decimal.Decimal
+	err = tx.QueryRow(ctx, `
+		UPDATE accounts
+		SET balance = balance + $1, updated_at = NOW()
+		WHERE public_id = $2 AND status = 'active'
+		RETURNING balance
+	`, req.Amount, req.AccountID).Scan(&newBalance)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, r.classifyCreditFailure(ctx, tx, req.AccountID)
+		}
+		return nil, fmt.Errorf("tx.QueryRow(update accounts credit): %w", err)
+	}
+
+	if _, err = tx.Exec(ctx, `
+		UPDATE account_operations SET balance_after = $1 WHERE id = $2
+	`, newBalance, opID); err != nil {
+		return nil, fmt.Errorf("tx.Exec(update account_operation balance_after): %w", err)
+	}
+
+	return &models.CreditResult{
+		AccountID:    req.AccountID.String(),
+		BalanceAfter: newBalance,
+	}, nil
+}
+
+func (r *Repository) getOperationByKeyTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	key string,
+) (string, decimal.Decimal, error) {
+	var accID uuid.UUID
+	var balanceAfter decimal.Decimal
+	err := tx.QueryRow(ctx, `
+		SELECT account_id, balance_after FROM account_operations WHERE idempotency_key = $1
+	`, key).Scan(&accID, &balanceAfter)
+	if err != nil {
+		return "", decimal.Zero, fmt.Errorf("tx.QueryRow(select account_operation): %w", err)
+	}
+	return accID.String(), balanceAfter, nil
+}
+
+func (r *Repository) classifyDebitFailure(
+	ctx context.Context,
+	tx pgx.Tx,
+	accountID uuid.UUID,
+	amount decimal.Decimal,
+) error {
+	var balance decimal.Decimal
+	var status string
+	err := tx.QueryRow(ctx, `SELECT balance, status FROM accounts WHERE public_id = $1`, accountID).
+		Scan(&balance, &status)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return models.NewNotFoundError("account not found")
+		}
+		return fmt.Errorf("tx.QueryRow(classify debit): %w", err)
+	}
+	if status != string(models.AccountStatusActive) {
+		return models.NewBusinessError(fmt.Sprintf("account is not active: %s", status))
+	}
+	if balance.LessThan(amount) {
+		return models.NewBusinessError("insufficient funds")
+	}
+	return models.NewBusinessError("debit precondition failed")
+}
+
+func (r *Repository) classifyCreditFailure(ctx context.Context, tx pgx.Tx, accountID uuid.UUID) error {
+	var status string
+	err := tx.QueryRow(ctx, `SELECT status FROM accounts WHERE public_id = $1`, accountID).Scan(&status)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return models.NewNotFoundError("account not found")
+		}
+		return fmt.Errorf("tx.QueryRow(classify credit): %w", err)
+	}
+	if status != string(models.AccountStatusActive) {
+		return models.NewBusinessError(fmt.Sprintf("account is not active: %s", status))
+	}
+	return models.NewBusinessError("credit precondition failed")
 }
