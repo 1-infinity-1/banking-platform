@@ -41,11 +41,11 @@
 |-------------|------------|-----------|------------|--------|
 | Клиент | gateway-service | REST | Внешний API | Реализован |
 | gateway-service | auth-service | gRPC | Аутентификация, управление пользователями | Реализован |
-| gateway-service | account-service | gRPC | Счета и балансы | Скелет (без логики) |
-| gateway-service | transaction-service | gRPC | Переводы и история | Скелет (без логики) |
+| gateway-service | account-service | gRPC | Счета и балансы | Реализован |
+| gateway-service | transaction-service | gRPC | Переводы и история | Реализован |
 | gateway-service | ledger-service | gRPC | Выписки по счетам | Реализован |
-| transaction-service | account-service | gRPC | Списание / зачисление | Скелет (без логики) |
-| transaction-service | Kafka | Kafka (produce) | Публикация событий транзакций | Скелет (без логики) |
+| transaction-service | account-service | gRPC | Списание / зачисление | Реализован |
+| transaction-service | Kafka | Kafka (produce) | Публикация событий транзакций | Реализован |
 | Kafka | ledger-service | Kafka (consume) | Получение событий транзакций | Реализован |
 
 ## Explicit Architecture внутри сервиса

@@ -11,6 +11,19 @@ Project goals:
 
 ---
 
+## About the Project
+
+Part of the services was designed and implemented independently to establish a shared convention for the monorepo:
+
+- **Project Layout** — directory structure following [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
+- **Uber Go Style Guide** — code style agreements following the [Uber Go Guide](https://github.com/uber-go/guide)
+- **Clean Architecture** — layers and dependency direction within each service, following [Uncle Bob's Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- **Golangci-lint Golden Config** — strict linter configuration based on [maratori's golden config](https://github.com/maratori/golangci-lint-config)
+
+With a stable convention and a configured AI platform ([Claude Code](https://claude.ai/code) + [AI Factory](https://github.com/lee-to/ai-factory)) in place, further development is carried out with AI assistance without quality loss.
+
+---
+
 ## Quick Start
 
 **Prerequisites:** Go 1.25.4+, Docker, Make.
@@ -38,8 +51,8 @@ curl http://localhost:8081/ping
 |---------|------|-----------|--------|
 | `gateway-service` | `:8081` | REST (ogen/OpenAPI) | Implemented |
 | `auth-service` | `:8082` | gRPC | Implemented |
-| `account-service` | `:8083` | gRPC | Skeleton |
-| `transaction-service` | `:8084` | gRPC | Skeleton |
+| `account-service` | `:8083` | gRPC | Implemented |
+| `transaction-service` | `:8084` | gRPC | Implemented |
 | `ledger-service` | `:8085` | gRPC + Kafka consumer | Implemented |
 
 ---
