@@ -9,7 +9,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-//nolint:unused // scaffold: used when implementing TODO methods
 type accountDTO struct {
 	id        int64
 	publicID  uuid.UUID
@@ -21,8 +20,19 @@ type accountDTO struct {
 	updatedAt time.Time
 }
 
-//nolint:unused // scaffold: used when implementing TODO methods
 func (d *accountDTO) ToDomain() (*models.Account, error) {
-	// TODO: implement — map fields + call models.ToAccountStatus(d.status)
-	return nil, fmt.Errorf("ToDomain: %w", models.ErrInternal)
+	status, err := models.ToAccountStatus(d.status)
+	if err != nil {
+		return nil, fmt.Errorf("models.ToAccountStatus: %w", err)
+	}
+	return &models.Account{
+		ID:        d.id,
+		PublicID:  d.publicID,
+		UserID:    d.userID,
+		Currency:  d.currency,
+		Balance:   d.balance,
+		Status:    status,
+		CreatedAt: d.createdAt,
+		UpdatedAt: d.updatedAt,
+	}, nil
 }
