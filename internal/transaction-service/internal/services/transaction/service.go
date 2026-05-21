@@ -126,6 +126,9 @@ func (s *Service) Replenish(ctx context.Context, req models.ReplenishRequest) (*
 
 	switch pending.Status {
 	case models.TransactionStatusCompleted:
+		//FIXME: Integrate the Outbox pattern into this saga flow so that the event is persisted atomically
+		// with the transaction state change and later published to Kafka by a separate worker,
+		// avoiding consistency issues between the database and the message broker.
 		if err = s.eventPublisher.PublishTransactionCompleted(ctx, toEvent(pending)); err != nil {
 			return nil, fmt.Errorf("s.eventPublisher.PublishTransactionCompleted: %w", err)
 		}
@@ -153,6 +156,9 @@ func (s *Service) Replenish(ctx context.Context, req models.ReplenishRequest) (*
 		return nil, fmt.Errorf("s.markCompleted: %w", err)
 	}
 
+	//FIXME: Integrate the Outbox pattern into this saga flow so that the event is persisted atomically
+	// with the transaction state change and later published to Kafka by a separate worker,
+	// avoiding consistency issues between the database and the message broker.
 	if err = s.eventPublisher.PublishTransactionCompleted(ctx, toEvent(completed)); err != nil {
 		return nil, fmt.Errorf("s.eventPublisher.PublishTransactionCompleted: %w", err)
 	}

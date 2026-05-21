@@ -80,6 +80,11 @@ func (c *Consumer) Run(ctx context.Context) error {
 			continue
 		}
 
+		//FIXME: Handle idempotent duplicate events in the consumer.
+		// In an at-least-once Kafka delivery model, a repeated TransactionCompleted event may be received
+		// for an already processed transaction. ConflictError should be treated as a successful
+		// idempotent re-delivery: commit the offset and move on. Only transient errors should prevent
+		// the offset from being committed and trigger a retry.
 		if err = c.service.RecordEntry(ctx, event); err != nil {
 			c.log.ErrorContext(ctx, "RecordEntry error",
 				slog.Any("error", err),
